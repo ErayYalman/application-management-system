@@ -15,8 +15,12 @@ import lombok.Setter;
 @Builder
 public class LoginResponse {
     
-    private String token;
-    private String type;
+    private String accessToken;
+    private String refreshToken;
+
+    @Builder.Default
+    private String tokenType = "Bearer";
+    
     private Instant expiresAt;
     private UserResponse user;
 }
