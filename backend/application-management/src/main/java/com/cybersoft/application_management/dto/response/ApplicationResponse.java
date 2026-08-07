@@ -29,5 +29,11 @@ public class ApplicationResponse {
 
     private String formTypeName;
 
+    private UUID userId;
+
+    private String applicantFullName;
+
     private Instant createdAt;
+
+    private Instant updatedAt;
 }

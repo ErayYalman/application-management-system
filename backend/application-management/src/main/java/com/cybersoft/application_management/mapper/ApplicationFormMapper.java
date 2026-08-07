@@ -21,6 +21,8 @@ public interface ApplicationFormMapper {
 
     @Mapping(target = "formTypeId", source = "formType.id")
     @Mapping(target = "formTypeName", source = "formType.name")
+    @Mapping(target = "userId", source = "user.id")
+    @Mapping(target = "applicantFullName", expression = "java(applicationForm.getUser().getFirstName() + \" \" + applicationForm.getUser().getLastName())")
     ApplicationResponse toResponse(ApplicationForm applicationForm);
 
 }
