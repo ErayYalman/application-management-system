@@ -17,6 +17,4 @@ public interface RefreshTokenService {
 
     void deleteByUser(User user);
 
-    void deleteExpiredTokens();
-
 }

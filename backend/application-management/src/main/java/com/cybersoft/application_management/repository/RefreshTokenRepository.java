@@ -1,6 +1,5 @@
 package com.cybersoft.application_management.repository;
 
-import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -14,6 +13,5 @@ public interface RefreshTokenRepository extends JpaRepository<RefreshToken, UUID
     void deleteByTokenHash(String tokenHash);
     void deleteByUser(User user);
     void deleteAllByUser_Id(UUID userId);
-    void deleteAllByExpiresAtBefore(Instant instant);
     
 }
