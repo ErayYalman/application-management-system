@@ -24,11 +24,11 @@ spring:
     enabled: true
     locations: classpath:db/migration
 
-  jwt:
-    secret: ${JWT_SECRET}
-    access-expiration: ${JWT_ACCESS_EXPIRATION}
-    refresh-expiration: ${JWT_REFRESH_EXPIRATION}
-    issuer: ${JWT_ISSUER}
+jwt:
+  secret: ${JWT_SECRET}
+  access-expiration: ${JWT_ACCESS_EXPIRATION}
+  refresh-expiration: ${JWT_REFRESH_EXPIRATION}
+  issuer: ${JWT_ISSUER}
 
 server:
   port: ${SERVER_PORT}

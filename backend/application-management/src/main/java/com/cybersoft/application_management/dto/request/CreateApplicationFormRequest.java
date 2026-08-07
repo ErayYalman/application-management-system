@@ -16,7 +16,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class CreateApplicationRequest {
+public class CreateApplicationFormRequest {
     
     @NotBlank
     @Size(max = 255)

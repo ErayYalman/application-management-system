@@ -9,15 +9,13 @@ import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
-import io.swagger.v3.oas.models.servers.Server;
 
 @Configuration
 public class OpenApiConfig {
-    
+    private static final String SECURITY_SCHEME = "Bearer Authentication";
+
     @Bean
     public OpenAPI customOpenAPI() {
-        final String securitySchemeName = "Bearer Authentication";
-
         return new OpenAPI()
                 .info(new Info()
                         .title("Cybersoft Application Management System API")
@@ -27,17 +25,13 @@ public class OpenApiConfig {
                                 .name("Cybersoft Support")
                                 .email("support@cybersoft.com")))
 
-                .addServersItem(new Server()
-                        .url("http://localhost:8080")
-                        .description("Development Server"))
-
                 .components(new Components()
-                        .addSecuritySchemes(securitySchemeName, new SecurityScheme()
-                                .name(securitySchemeName)
+                        .addSecuritySchemes(SECURITY_SCHEME, new SecurityScheme()
+                                .name(SECURITY_SCHEME)
                                 .type(SecurityScheme.Type.HTTP)
                                 .scheme("bearer")
                                 .bearerFormat("JWT")))
 
-                .addSecurityItem(new SecurityRequirement().addList(securitySchemeName));
+                .addSecurityItem(new SecurityRequirement().addList(SECURITY_SCHEME));
     }
 }

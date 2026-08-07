@@ -3,7 +3,7 @@ package com.cybersoft.application_management.mapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-import com.cybersoft.application_management.dto.request.CreateApplicationRequest;
+import com.cybersoft.application_management.dto.request.CreateApplicationFormRequest;
 import com.cybersoft.application_management.dto.response.ApplicationResponse;
 import com.cybersoft.application_management.entity.ApplicationForm;
 
@@ -17,7 +17,7 @@ public interface ApplicationFormMapper {
     @Mapping(target = "attachments", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
-    ApplicationForm toEntity(CreateApplicationRequest request);
+    ApplicationForm toEntity(CreateApplicationFormRequest request);
 
     @Mapping(target = "formTypeId", source = "formType.id")
     @Mapping(target = "formTypeName", source = "formType.name")
