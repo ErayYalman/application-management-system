@@ -24,4 +24,12 @@ public interface ApplicationFormService {
 
     void deleteApplicationForm(UUID applicationFormId);
 
+    ApplicationResponse approveApplication(UUID applicationId);
+
+    ApplicationResponse rejectApplication(UUID applicationId);
+
+    ApplicationResponse cancelApplication(UUID applicationId);
+
+    ApplicationResponse moveToReview(UUID applicationId);
+
 }

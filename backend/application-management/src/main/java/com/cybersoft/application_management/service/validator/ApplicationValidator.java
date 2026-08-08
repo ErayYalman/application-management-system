@@ -32,28 +32,16 @@ public class ApplicationValidator {
     }
 
     public void validateUpdatable(ApplicationForm applicationForm) {
-
-        ApplicationStatus status = applicationForm.getStatus();
-
-        if (status == ApplicationStatus.APPROVED
-                || status == ApplicationStatus.REJECTED
-                || status == ApplicationStatus.CANCELLED) {
-
+        if (applicationForm.getStatus() != ApplicationStatus.NEW) {
             throw new IllegalStateException(
-                    "This application cannot be updated in its current status.");
+                    "Only new applications can be updated.");
         }
     }
 
     public void validateDeletable(ApplicationForm applicationForm) {
-
-        ApplicationStatus status = applicationForm.getStatus();
-
-        if (status == ApplicationStatus.APPROVED
-                || status == ApplicationStatus.REJECTED
-                || status == ApplicationStatus.CANCELLED) {
-
+        if (applicationForm.getStatus() != ApplicationStatus.NEW) {
             throw new IllegalStateException(
-                    "This application cannot be deleted in its current status.");
+                    "Only new applications can be deleted.");
         }
     }
 
@@ -72,6 +60,22 @@ public class ApplicationValidator {
 
             throw new IllegalStateException(
                     "Only applications in review can be rejected.");
+        }
+    }
+
+    public void validateCancellable(ApplicationForm applicationForm) {
+        ApplicationStatus status = applicationForm.getStatus();
+        if (status != ApplicationStatus.NEW
+                && status != ApplicationStatus.IN_REVIEW) {
+            throw new IllegalStateException(
+                    "Only new or in-review applications can be cancelled.");
+        }
+    }
+
+    public void validateReviewable(ApplicationForm applicationForm) {
+        if (applicationForm.getStatus() != ApplicationStatus.NEW) {
+            throw new IllegalStateException(
+                    "Only new applications can be moved to review.");
         }
     }
 }

@@ -1,7 +1,6 @@
 package com.cybersoft.application_management.service.impl;
 
 import java.time.Instant;
-import java.util.Objects;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
@@ -28,12 +27,11 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
     @Override
     public RefreshToken create(User user, String token, Instant expiresAt) {
         RefreshToken savedToken = refreshTokenRepository.save(
-                Objects.requireNonNull(
                         RefreshToken.builder()
                                 .user(user)
                                 .tokenHash(token)
                                 .expiresAt(expiresAt)
-                                .build()));
+                                .build());
 
         log.info("Created refresh token for user: {}", user.getEmail());
         return savedToken;
@@ -63,7 +61,7 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
     public void deleteByTokenHash(String tokenHash) {
         refreshTokenRepository.findByTokenHash(tokenHash)
                 .ifPresent(refreshToken -> {
-                    refreshTokenRepository.delete(Objects.requireNonNull(refreshToken));
+                    refreshTokenRepository.delete(refreshToken);
                     log.info(
                             "Refresh token deleted for user: {}",
                             refreshToken.getUser().getEmail());

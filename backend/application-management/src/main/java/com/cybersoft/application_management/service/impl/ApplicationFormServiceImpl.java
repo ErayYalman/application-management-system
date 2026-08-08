@@ -198,4 +198,67 @@ public class ApplicationFormServiceImpl implements ApplicationFormService {
                 applicationForm.getFormType().getId());
     }
 
+    @Override
+    public ApplicationResponse approveApplication(UUID applicationId) {
+        ApplicationForm applicationForm = getApplicationOrThrow(applicationId);
+        applicationValidator.validateApprovable(applicationForm);
+        applicationForm.setStatus(ApplicationStatus.APPROVED);
+        ApplicationForm savedApplicationForm = applicationFormRepository.save(applicationForm);
+
+        log.info(
+                "Application approved. Id: {}, UserId: {}",
+                savedApplicationForm.getId(),
+                savedApplicationForm.getUser().getId());
+
+        return applicationFormMapper.toResponse(
+                savedApplicationForm);
+    }
+
+    @Override
+    public ApplicationResponse rejectApplication(UUID applicationId) {
+        ApplicationForm applicationForm = getApplicationOrThrow(applicationId);
+        applicationValidator.validateRejectable(applicationForm);
+        applicationForm.setStatus(ApplicationStatus.REJECTED);
+        ApplicationForm savedApplicationForm = applicationFormRepository.save(applicationForm);
+
+        log.info(
+                "Application rejected. Id: {}, UserId: {}",
+                savedApplicationForm.getId(),
+                savedApplicationForm.getUser().getId());
+
+        return applicationFormMapper.toResponse(
+                savedApplicationForm);
+    }
+
+    @Override
+    public ApplicationResponse cancelApplication(UUID applicationId) {
+        ApplicationForm applicationForm = getApplicationOrThrow(applicationId);
+        applicationValidator.validateAccess(applicationForm);
+        applicationValidator.validateCancellable(applicationForm);
+        applicationForm.setStatus(ApplicationStatus.CANCELLED);
+        ApplicationForm savedApplicationForm = applicationFormRepository.save(applicationForm);
+        log.info(
+                "Application cancelled. Id: {}, UserId: {}",
+                savedApplicationForm.getId(),
+                savedApplicationForm.getUser().getId());
+
+        return applicationFormMapper.toResponse(
+                savedApplicationForm);
+    }
+
+    @Override
+    public ApplicationResponse moveToReview(UUID applicationId) {
+        ApplicationForm applicationForm = getApplicationOrThrow(applicationId);
+        applicationValidator.validateReviewable(applicationForm);
+        applicationForm.setStatus(ApplicationStatus.IN_REVIEW);
+        ApplicationForm savedApplicationForm = applicationFormRepository.save(applicationForm);
+        log.info(
+                "Application moved to review. Id: {}, UserId: {}",
+                savedApplicationForm.getId(),
+                savedApplicationForm.getUser().getId());
+
+        return applicationFormMapper.toResponse(
+                savedApplicationForm);
+    }
+
 }
