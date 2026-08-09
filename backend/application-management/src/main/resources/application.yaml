@@ -33,3 +33,7 @@ jwt:
 
 server:
   port: ${SERVER_PORT}
+
+file:
+  storage:
+    location: ./storage
