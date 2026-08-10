@@ -37,3 +37,10 @@ server:
 file:
   storage:
     location: ./storage
+
+app:
+  admin:
+    email: ${ADMIN_EMAIL}
+    password: ${ADMIN_PASSWORD}
+    name: ${ADMIN_NAME:System}
+    surname: ${ADMIN_SURNAME:Administrator}
