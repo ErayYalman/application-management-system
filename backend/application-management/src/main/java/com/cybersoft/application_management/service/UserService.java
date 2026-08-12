@@ -1,9 +1,12 @@
 package com.cybersoft.application_management.service;
 
-import java.util.List;
 import java.util.UUID;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 import com.cybersoft.application_management.dto.request.UpdateUserRequest;
+import com.cybersoft.application_management.dto.request.UserSearchRequest;
 import com.cybersoft.application_management.dto.response.UserResponse;
 
 public interface UserService {
@@ -12,7 +15,7 @@ public interface UserService {
 
     UserResponse getUserById(UUID userId);
 
-    List<UserResponse> getAllUsers();
+    Page<UserResponse> getAllUsers(UserSearchRequest request, Pageable pageable);
 
     UserResponse updateCurrentUser(UpdateUserRequest request);
 

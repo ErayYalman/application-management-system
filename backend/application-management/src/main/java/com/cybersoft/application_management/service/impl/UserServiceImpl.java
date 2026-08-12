@@ -1,19 +1,25 @@
 package com.cybersoft.application_management.service.impl;
 
-import java.util.List;
 import java.util.UUID;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.cybersoft.application_management.dto.request.UpdateUserRequest;
+import com.cybersoft.application_management.dto.request.UserSearchRequest;
 import com.cybersoft.application_management.dto.response.UserResponse;
 import com.cybersoft.application_management.entity.User;
+import com.cybersoft.application_management.enums.UserRole;
 import com.cybersoft.application_management.exception.user.UserNotFoundException;
 import com.cybersoft.application_management.mapper.UserMapper;
 import com.cybersoft.application_management.repository.UserRepository;
+import com.cybersoft.application_management.repository.specification.UserSpecification;
 import com.cybersoft.application_management.security.userdetails.SecurityUtils;
 import com.cybersoft.application_management.service.UserService;
+import com.cybersoft.application_management.service.validator.UserValidator;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +31,7 @@ import lombok.extern.slf4j.Slf4j;
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
+    private final UserValidator userValidator;
 
     private User getUserOrThrow(UUID userId) {
         return userRepository.findById(userId)
@@ -46,10 +53,10 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<UserResponse> getAllUsers() {
-        return userRepository.findAll().stream()
-                .map(userMapper::toResponse)
-                .toList();
+    public Page<UserResponse> getAllUsers(UserSearchRequest request, Pageable pageable) {
+        Specification<User> specification = UserSpecification.build(request);
+        Page<User> users = userRepository.findAll(specification, pageable);
+        return users.map(userMapper::toResponse);
     }
 
     @Override
@@ -74,17 +81,32 @@ public class UserServiceImpl implements UserService {
     @Override
     public void deactivateUser(UUID userId) {
         User user = getUserOrThrow(userId);
+        userValidator.validateDeactivation(user);
+        if (user.getRole() == UserRole.ADMIN) {
+
+            long activeAdminCount = userRepository.countByRoleAndActive(
+                    UserRole.ADMIN,
+                    true);
+
+            if (activeAdminCount <= 1) {
+                throw new IllegalStateException(
+                        "The last active admin cannot be deactivated.");
+            }
+        }
         user.setActive(false);
-        userRepository.save(user);
-        log.info("User deactivated. Id: {}", user.getId());
+        log.info(
+                "User deactivated. Id: {}",
+                user.getId());
     }
 
     @Override
     public void activateUser(UUID userId) {
         User user = getUserOrThrow(userId);
+        userValidator.validateActivation(user);
         user.setActive(true);
-        userRepository.save(user);
-        log.info("User activated. Id: {}", user.getId());
+        log.info(
+                "User activated. Id: {}",
+                user.getId());
     }
 
 }

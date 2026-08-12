@@ -25,71 +25,73 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+        private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
-    private final JwtAuthenticationEntryPoint authenticationEntryPoint;
+        private final JwtAuthenticationEntryPoint authenticationEntryPoint;
 
-    private final JwtAccessDeniedHandler accessDeniedHandler;
-    
-    @Bean
-    PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder(12);
-    }
+        private final JwtAccessDeniedHandler accessDeniedHandler;
 
-    @Bean
-    AuthenticationManager authenticationManager(AuthenticationConfiguration configuration)
-            throws Exception {
+        @Bean
+        PasswordEncoder passwordEncoder() {
+                return new BCryptPasswordEncoder(12);
+        }
 
-        return configuration.getAuthenticationManager();
-    }
+        @Bean
+        AuthenticationManager authenticationManager(AuthenticationConfiguration configuration)
+                        throws Exception {
 
-    @Bean
-    SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+                return configuration.getAuthenticationManager();
+        }
 
-        http
+        @Bean
+        SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
-                .csrf(csrf -> csrf.disable())
+                http
 
-                .cors(Customizer.withDefaults())
+                                .csrf(csrf -> csrf.disable())
 
-                .sessionManagement(session ->
-                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                                .cors(Customizer.withDefaults())
 
-                .exceptionHandling(exception -> exception
-                        .authenticationEntryPoint(authenticationEntryPoint)
-                        .accessDeniedHandler(accessDeniedHandler))
+                                .sessionManagement(session -> session
+                                                .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
-                .authorizeHttpRequests(auth -> auth
+                                .exceptionHandling(exception -> exception
+                                                .authenticationEntryPoint(authenticationEntryPoint)
+                                                .accessDeniedHandler(accessDeniedHandler))
 
-                        .requestMatchers(
-                                "/api/v1/auth/**",
-                                "/v3/api-docs/**",
-                                "/swagger-ui/**",
-                                "/swagger-ui.html"
-                        ).permitAll()
+                                .authorizeHttpRequests(auth -> auth
 
-                        .requestMatchers(HttpMethod.GET, "/api/v1/form-types/**")
-                        .hasAnyRole("ADMIN", "PERSONNEL")
+                                                .requestMatchers(
+                                                                "/api/v1/auth/**",
+                                                                "/v3/api-docs/**",
+                                                                "/swagger-ui/**",
+                                                                "/swagger-ui.html")
+                                                .permitAll()
 
-                        .requestMatchers("/api/v1/users/**")
-                        .hasRole("ADMIN")
+                                                .requestMatchers(HttpMethod.GET, "/api/v1/form-types/**")
+                                                .hasAnyRole("ADMIN", "PERSONNEL")
 
-                        .requestMatchers("/api/v1/applications/**")
-                        .authenticated()
+                                                .requestMatchers("/api/v1/users/me",
+                                                                "/api/v1/users/me/**")
+                                                .authenticated()
 
-                        .requestMatchers("/api/v1/attachments/**")
-                        .authenticated()
+                                                .requestMatchers("/api/v1/users/**")
+                                                .hasRole("ADMIN")
 
-                        .anyRequest()
-                        .authenticated())
+                                                .requestMatchers("/api/v1/applications/**")
+                                                .authenticated()
 
-                .addFilterBefore(
-                        jwtAuthenticationFilter,
-                        UsernamePasswordAuthenticationFilter.class
-                );
+                                                .requestMatchers("/api/v1/attachments/**")
+                                                .authenticated()
 
-        return http.build();
-    }
+                                                .anyRequest()
+                                                .authenticated())
 
+                                .addFilterBefore(
+                                                jwtAuthenticationFilter,
+                                                UsernamePasswordAuthenticationFilter.class);
+
+                return http.build();
+        }
 
 }
