@@ -8,5 +8,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import com.cybersoft.application_management.entity.FormType;
 
 public interface FormTypeRepository extends JpaRepository<FormType, UUID> {
-    Optional<FormType> findByName(String name);
+    Optional<FormType> findByNameIgnoreCase(String name);
+
+    boolean existsByNameIgnoreCase(String name);
+
+    boolean existsByNameIgnoreCaseAndIdNot(String name, UUID id);
+
 }
