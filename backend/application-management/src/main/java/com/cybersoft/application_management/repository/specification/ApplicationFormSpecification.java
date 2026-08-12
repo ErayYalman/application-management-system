@@ -115,7 +115,6 @@ public final class ApplicationFormSpecification {
             ApplicationSearchRequest request, UUID userId) {
 
         return Specification.allOf(
-                fetchDetails(),
                 hasUser(userId),
                 hasStatus(request.getStatus()),
                 hasFormType(request.getFormTypeId()),

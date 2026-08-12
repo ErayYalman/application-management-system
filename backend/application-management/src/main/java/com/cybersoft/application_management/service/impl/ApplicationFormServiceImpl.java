@@ -120,9 +120,9 @@ public class ApplicationFormServiceImpl implements ApplicationFormService {
 
         UUID currentUserId = SecurityUtils.getCurrentUserId();
 
-        Specification<ApplicationForm> specification = ApplicationFormSpecification.build(
-                request,
-                currentUserId);
+        Specification<ApplicationForm> specification = Specification.allOf(
+                ApplicationFormSpecification.fetchDetails(),
+                ApplicationFormSpecification.build(request, currentUserId));    
 
         Page<ApplicationForm> applications = applicationFormRepository.findAll(
                 specification,
@@ -138,7 +138,9 @@ public class ApplicationFormServiceImpl implements ApplicationFormService {
             ApplicationSearchRequest request,
             Pageable pageable) {
 
-        Specification<ApplicationForm> specification = ApplicationFormSpecification.build(request);
+        Specification<ApplicationForm> specification = Specification.allOf(
+                ApplicationFormSpecification.fetchDetails(),
+                ApplicationFormSpecification.build(request));
 
         Page<ApplicationForm> applications = applicationFormRepository.findAll(
                 specification,
