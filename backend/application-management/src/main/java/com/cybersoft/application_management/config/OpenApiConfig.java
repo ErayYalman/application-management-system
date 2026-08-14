@@ -12,7 +12,7 @@ import io.swagger.v3.oas.models.security.SecurityScheme;
 
 @Configuration
 public class OpenApiConfig {
-    private static final String SECURITY_SCHEME = "Bearer Authentication";
+    private static final String SECURITY_SCHEME = "BearerAuth";
 
     @Bean
     public OpenAPI customOpenAPI() {
