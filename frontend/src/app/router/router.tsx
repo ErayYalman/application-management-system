@@ -1,28 +1,134 @@
 import {
-    createBrowserRouter,
+  createBrowserRouter,
 } from "react-router-dom";
 
-import LoginPage from "../../features/auth/pages/LoginPage";
+import { UserResponseRoleEnum } from "../../api/generated";
 
-function HomePage() {
-    return <div>Home</div>;
+import LoginPage from "../../features/auth/pages/LoginPage";
+import ProtectedRoute from "../../features/auth/guards/ProtectedRoute";
+import RoleGuard from "../../features/auth/guards/RoleGuard";
+
+import AppLayout from "../../components/layout/AppLayout";
+
+function HomeRedirect() {
+  return <div>Home</div>;
 }
 
 function RegisterPage() {
-    return <div>Register</div>;
+  return <div>Register</div>;
 }
 
-export const router = createBrowserRouter([
+function DashboardPlaceholder() {
+  return <div>Dashboard</div>;
+}
+
+function ApplicationsPlaceholder() {
+  return <div>Applications</div>;
+}
+
+function MyApplicationsPlaceholder() {
+  return <div>My Applications</div>;
+}
+
+function UsersPlaceholder() {
+  return <div>Users</div>;
+}
+
+function FormTypesPlaceholder() {
+  return <div>Form Types</div>;
+}
+
+function ReportsPlaceholder() {
+  return <div>Reports</div>;
+}
+
+function ProfilePlaceholder() {
+  return <div>Profile</div>;
+}
+
+export const router =
+  createBrowserRouter([
     {
-        path: "/",
-        element: <HomePage />,
+      path: "/login",
+      element: <LoginPage />,
     },
     {
-        path: "/login",
-        element: <LoginPage />,
+      path: "/register",
+      element: <RegisterPage />,
     },
+
     {
-        path: "/register",
-        element: <RegisterPage />,
+      element: <ProtectedRoute />,
+      children: [
+        {
+          element: <AppLayout />,
+          children: [
+            {
+              path: "/",
+              element: <HomeRedirect />,
+            },
+
+            {
+              element: (
+                <RoleGuard
+                  allowedRoles={[
+                    UserResponseRoleEnum.Admin,
+                  ]}
+                />
+              ),
+              children: [
+                {
+                  path: "/dashboard",
+                  element:
+                    <DashboardPlaceholder />,
+                },
+                {
+                  path: "/applications",
+                  element:
+                    <ApplicationsPlaceholder />,
+                },
+                {
+                  path: "/users",
+                  element:
+                    <UsersPlaceholder />,
+                },
+                {
+                  path: "/form-types",
+                  element:
+                    <FormTypesPlaceholder />,
+                },
+                {
+                  path: "/reports",
+                  element:
+                    <ReportsPlaceholder />,
+                },
+              ],
+            },
+
+            {
+              element: (
+                <RoleGuard
+                  allowedRoles={[
+                    UserResponseRoleEnum.Personnel,
+                  ]}
+                />
+              ),
+              children: [
+                {
+                  path: "/applications/my",
+                  element:
+                    <MyApplicationsPlaceholder />,
+                },
+              ],
+            },
+
+            {
+              path: "/profile",
+              element:
+                <ProfilePlaceholder />,
+            },
+          ],
+        },
+      ],
     },
-]);
+  ]);

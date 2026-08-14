@@ -28,7 +28,7 @@ interface AuthContextValue {
     user: UserResponse | null;
     isAuthenticated: boolean;
     isLoading: boolean;
-    login: (request: LoginRequest) => Promise<void>;
+    login: (request: LoginRequest) => Promise<UserResponse>;
     logout: () => Promise<void>;
 }
 
@@ -42,7 +42,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
     const [user, setUser] = useState<UserResponse | null>(null);
     const [isLoading, setIsLoading] = useState(true);
 
-    // Sayfa yenilendiğinde (veya ilk açıldığında) token varsa oturumu kurtar
     useEffect(() => {
         const restoreSession = async () => {
             const accessToken = authStorage.getAccessToken();
@@ -54,7 +53,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
             try {
                 const currentUser = await getCurrentUser();
-                // TypeScript için undefined gelme ihtimaline karşı null koruması
                 setUser(currentUser ?? null);
             } catch {
                 authStorage.clear();
@@ -67,11 +65,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
         void restoreSession();
     }, []);
 
-    const login = async (request: LoginRequest): Promise<void> => {
+    const login = async (request: LoginRequest): Promise<UserResponse> => {
         const response: LoginResponse = await loginApi(request);
 
-        if (!response.accessToken || !response.refreshToken) {
-            throw new Error("Login was successful, but the token details received from the server were incomplete!");
+        if (!response.accessToken || !response.refreshToken || !response.user) {
+            throw new Error("Login was successful, but the details received from the server were incomplete!");
         }
 
         authStorage.setTokens(
@@ -79,16 +77,25 @@ export function AuthProvider({ children }: AuthProviderProps) {
             response.refreshToken,
         );
 
-        setUser(response.user ?? null);
+        setUser(response.user);
+        return response.user;
     };
 
     const logout = async (): Promise<void> => {
-        const refreshToken = authStorage.getRefreshToken();
+        const refreshToken =
+            authStorage.getRefreshToken();
 
         try {
             if (refreshToken) {
-                await logoutApi({ refreshToken });
+                await logoutApi({
+                    refreshToken,
+                });
             }
+        } catch (error) {
+            console.error(
+                "Logout request failed:",
+                error,
+            );
         } finally {
             authStorage.clear();
             setUser(null);

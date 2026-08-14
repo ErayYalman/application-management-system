@@ -29,12 +29,13 @@ import {
     type LoginFormData,
 } from "../schemas/login-schema";
 
+import { UserResponseRoleEnum } from "../../../api/generated";
+
 export default function LoginPage() {
     const navigate = useNavigate();
     const { login } = useAuth();
 
-    const [serverError, setServerError] =
-        useState<string | null>(null);
+    const [serverError, setServerError] = useState<string | null>(null);
 
     const {
         control,
@@ -48,15 +49,17 @@ export default function LoginPage() {
         },
     });
 
-    const onSubmit = async (
-        data: LoginFormData,
-    ) => {
+    const onSubmit = async (data: LoginFormData) => {
         setServerError(null);
 
         try {
-            await login(data);
+            const loggedInUser = await login(data);
 
-            navigate("/");
+            if (loggedInUser.role === UserResponseRoleEnum.Admin) {
+                navigate("/dashboard", { replace: true });
+            } else {
+                navigate("/applications/my", { replace: true });
+            }
         } catch (error) {
             console.error(error);
             setServerError("Email veya şifre hatalı.");
@@ -73,7 +76,6 @@ export default function LoginPage() {
             }}
         >
             <Grid container sx={{ flex: 1, minHeight: "100vh" }}>
-                {/* Sol Taraf: Kurumsal Degradeli Visual Panel (%50 genişlik) */}
                 <Grid
                     size={{ xs: 12, md: 6 }}
                     sx={{
@@ -88,7 +90,6 @@ export default function LoginPage() {
                         color: "#FFFFFF",
                     }}
                 >
-                    {/* Arka Plan Dekoratif Işık Efektleri */}
                     <Box
                         sx={{
                             position: "absolute",
@@ -118,7 +119,6 @@ export default function LoginPage() {
                         }}
                     />
 
-                    {/* Sol Üst: Kurumsal Rozet / Logo */}
                     <Box sx={{ position: "relative", zIndex: 1 }}>
                         <Chip
                             icon={<BusinessCenterOutlined sx={{ color: "#818CF8 !important" }} />}
@@ -138,7 +138,6 @@ export default function LoginPage() {
                         />
                     </Box>
 
-                    {/* Sol Orta: Ana Başlık ve Slogan */}
                     <Box sx={{ position: "relative", zIndex: 1, my: "auto" }}>
                         <Typography
                             variant="h2"
@@ -170,7 +169,6 @@ export default function LoginPage() {
                             Cybersoft Finans, Kamu ve Kurumsal Yazılım Çözümleri Ekosistemi için geliştirilen merkezi uygulama ve yetkilendirme portalı.
                         </Typography>
 
-                        {/* Öne Çıkan Özellik Kartları */}
                         <Stack spacing={2.5} sx={{ maxWidth: "480px" }}>
                             <Box
                                 sx={{
@@ -241,11 +239,8 @@ export default function LoginPage() {
                             </Box>
                         </Stack>
                     </Box>
-
-
                 </Grid>
 
-                {/* Sağ Taraf: Ortalanmış Giriş Formu Panel (%50 genişlik) */}
                 <Grid
                     size={{ xs: 12, md: 6 }}
                     sx={{
@@ -274,7 +269,6 @@ export default function LoginPage() {
                             },
                         }}
                     >
-                        {/* Form Başlığı */}
                         <Box sx={{ mb: 4, textAlign: "left" }}>
                             <Box
                                 sx={{
