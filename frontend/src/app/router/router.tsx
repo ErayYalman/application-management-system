@@ -10,6 +10,12 @@ import RoleGuard from "../../features/auth/guards/RoleGuard";
 
 import AppLayout from "../../components/layout/AppLayout";
 
+import DashboardPage
+  from "../../features/dashboard/pages/DashboardPage";
+
+import MyApplicationsPage
+  from "../../features/applications/pages/MyApplicationsPage";
+
 function HomeRedirect() {
   return <div>Home</div>;
 }
@@ -24,10 +30,6 @@ function DashboardPlaceholder() {
 
 function ApplicationsPlaceholder() {
   return <div>Applications</div>;
-}
-
-function MyApplicationsPlaceholder() {
-  return <div>My Applications</div>;
 }
 
 function UsersPlaceholder() {
@@ -80,7 +82,7 @@ export const router =
                 {
                   path: "/dashboard",
                   element:
-                    <DashboardPlaceholder />,
+                    <DashboardPage />,
                 },
                 {
                   path: "/applications",
@@ -116,8 +118,7 @@ export const router =
               children: [
                 {
                   path: "/applications/my",
-                  element:
-                    <MyApplicationsPlaceholder />,
+                  element: <MyApplicationsPage />,
                 },
               ],
             },
