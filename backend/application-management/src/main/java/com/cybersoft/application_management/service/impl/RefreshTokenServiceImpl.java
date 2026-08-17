@@ -74,4 +74,13 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
         log.info("All refresh tokens deleted for user: {}", user.getEmail());
     }
 
+    @Override
+    public int purgeExpiredTokens() {
+        int deletedCount = refreshTokenRepository.deleteExpiredOrRevokedTokens(Instant.now());
+        if (deletedCount > 0) {
+            log.info("Cleaned up {} expired or revoked refresh tokens from database.", deletedCount);
+        }
+        return deletedCount;
+    }
+
 }
