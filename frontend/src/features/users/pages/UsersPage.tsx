@@ -32,7 +32,18 @@ import {
 
 import UsersTable from "../components/UsersTable";
 
+import {
+  useMutation,
+  useQueryClient,
+} from "@tanstack/react-query";
+
+import {
+  activateUser,
+  deactivateUser,
+} from "../api/user-service";
+
 export default function UsersPage() {
+  
   const navigate = useNavigate();
 
   const [page, setPage] =
@@ -115,12 +126,36 @@ export default function UsersPage() {
     );
   }
 
+  const queryClient = useQueryClient();
+
+  const activateMutation =
+    useMutation({
+      mutationFn: activateUser,
+      onSuccess: async () => {
+        await queryClient.invalidateQueries({
+          queryKey: ["users"],
+        });
+      },
+    });
+
+  const deactivateMutation =
+    useMutation({
+      mutationFn: deactivateUser,
+      onSuccess: async () => {
+        await queryClient.invalidateQueries({
+          queryKey: ["users"],
+        });
+      },
+    });
+
+
   return (
     <Box>
       <Typography
         variant="h4"
         sx={{
-        fontWeight:700}}
+          fontWeight: 700
+        }}
         gutterBottom
       >
         Kullanıcılar
@@ -174,8 +209,8 @@ export default function UsersPage() {
             onChange={(event) =>
               setRole(
                 event.target.value as
-                  | UserResponseRoleEnum
-                  | "",
+                | UserResponseRoleEnum
+                | "",
               )
             }
           >
@@ -215,9 +250,9 @@ export default function UsersPage() {
             onChange={(event) =>
               setActive(
                 event.target.value as
-                  | ""
-                  | "true"
-                  | "false",
+                | ""
+                | "true"
+                | "false",
               )
             }
           >
@@ -297,20 +332,36 @@ export default function UsersPage() {
           )
         }
         onActivate={(userId) => {
-          // Bir sonraki adımda mutation bağlayacağız.
-          console.log(
-            "activate",
-            userId,
-          );
+          if (
+            window.confirm(
+              "Bu kullanıcıyı aktifleştirmek istediğinize emin misiniz?",
+            )
+          ) {
+            activateMutation.mutate(userId);
+          }
         }}
+
         onDeactivate={(userId) => {
-          // Bir sonraki adımda mutation bağlayacağız.
-          console.log(
-            "deactivate",
-            userId,
-          );
+          if (
+            window.confirm(
+              "Bu kullanıcıyı pasifleştirmek istediğinize emin misiniz?",
+            )
+          ) {
+            deactivateMutation.mutate(userId);
+          }
         }}
       />
+      {activateMutation.isError && (
+        <Alert severity="error" sx={{ mb: 2 }}>
+          Kullanıcı aktifleştirilemedi.
+        </Alert>
+      )}
+
+      {deactivateMutation.isError && (
+        <Alert severity="error" sx={{ mb: 2 }}>
+          Kullanıcı pasifleştirilemedi.
+        </Alert>
+      )}
     </Box>
   );
 }

@@ -16,12 +16,15 @@ import type {
 export function useUserActions(
   userId: string,
 ) {
-  const queryClient =
-    useQueryClient();
+  const queryClient = useQueryClient();
 
-  const invalidate = async () => {
+  const invalidateUsers = async () => {
     await queryClient.invalidateQueries({
       queryKey: ["users"],
+    });
+
+    await queryClient.invalidateQueries({
+      queryKey: ["user", userId],
     });
   };
 
@@ -33,19 +36,22 @@ export function useUserActions(
         userId,
         request,
       ),
-    onSuccess: invalidate,
+
+    onSuccess: invalidateUsers,
   });
 
   const activate = useMutation({
     mutationFn: () =>
       activateUser(userId),
-    onSuccess: invalidate,
+
+    onSuccess: invalidateUsers,
   });
 
   const deactivate = useMutation({
     mutationFn: () =>
       deactivateUser(userId),
-    onSuccess: invalidate,
+
+    onSuccess: invalidateUsers,
   });
 
   return {

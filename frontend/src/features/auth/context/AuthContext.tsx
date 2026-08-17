@@ -24,27 +24,41 @@ import {
     getCurrentUser,
 } from "../../users/api/user-service";
 
-interface AuthContextValue {
+export interface AuthContextValue {
     user: UserResponse | null;
     isAuthenticated: boolean;
     isLoading: boolean;
-    login: (request: LoginRequest) => Promise<UserResponse>;
+    login: (
+        request: LoginRequest
+    ) => Promise<UserResponse>;
     logout: () => Promise<void>;
+    updateUser: (
+        user: UserResponse
+    ) => void;
 }
 
-const AuthContext = createContext<AuthContextValue | undefined>(undefined);
+export const AuthContext =
+    createContext<AuthContextValue | undefined>(
+        undefined
+    );
 
 interface AuthProviderProps {
     children: ReactNode;
 }
 
-export function AuthProvider({ children }: AuthProviderProps) {
-    const [user, setUser] = useState<UserResponse | null>(null);
-    const [isLoading, setIsLoading] = useState(true);
+export function AuthProvider({
+    children,
+}: AuthProviderProps) {
+    const [user, setUser] =
+        useState<UserResponse | null>(null);
+
+    const [isLoading, setIsLoading] =
+        useState(true);
 
     useEffect(() => {
         const restoreSession = async () => {
-            const accessToken = authStorage.getAccessToken();
+            const accessToken =
+                authStorage.getAccessToken();
 
             if (!accessToken) {
                 setIsLoading(false);
@@ -52,8 +66,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
             }
 
             try {
-                const currentUser = await getCurrentUser();
-                setUser(currentUser ?? null);
+                const currentUser =
+                    await getCurrentUser();
+
+                setUser(currentUser);
             } catch {
                 authStorage.clear();
                 setUser(null);
@@ -65,11 +81,20 @@ export function AuthProvider({ children }: AuthProviderProps) {
         void restoreSession();
     }, []);
 
-    const login = async (request: LoginRequest): Promise<UserResponse> => {
-        const response: LoginResponse = await loginApi(request);
+    const login = async (
+        request: LoginRequest,
+    ): Promise<UserResponse> => {
+        const response: LoginResponse =
+            await loginApi(request);
 
-        if (!response.accessToken || !response.refreshToken || !response.user) {
-            throw new Error("Login was successful, but the details received from the server were incomplete!");
+        if (
+            !response.accessToken ||
+            !response.refreshToken ||
+            !response.user
+        ) {
+            throw new Error(
+                "Login was successful, but the details received from the server were incomplete!",
+            );
         }
 
         authStorage.setTokens(
@@ -78,6 +103,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         );
 
         setUser(response.user);
+
         return response.user;
     };
 
@@ -102,15 +128,26 @@ export function AuthProvider({ children }: AuthProviderProps) {
         }
     };
 
+    const updateUser = (
+        updatedUser: UserResponse,
+    ): void => {
+        setUser(updatedUser);
+    };
+
     const value = useMemo(
         () => ({
             user,
-            isAuthenticated: user !== null,
+            isAuthenticated:
+                user !== null,
             isLoading,
             login,
             logout,
+            updateUser,
         }),
-        [user, isLoading],
+        [
+            user,
+            isLoading,
+        ],
     );
 
     return (
@@ -120,12 +157,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
     );
 }
 
-// eslint-disable-next-line react-refresh/only-export-components
 export function useAuth(): AuthContextValue {
-    const context = useContext(AuthContext);
+    const context =
+        useContext(AuthContext);
 
     if (!context) {
-        throw new Error("useAuth must be used inside AuthProvider.");
+        throw new Error(
+            "useAuth must be used inside AuthProvider.",
+        );
     }
 
     return context;

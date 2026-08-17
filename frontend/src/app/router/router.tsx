@@ -29,6 +29,18 @@ import ApplicationsPage
 import UsersPage
   from "../../features/users/pages/UsersPage";
 
+import UserDetailPage
+  from "../../features/users/pages/UserDetailPage";
+
+import FormTypesPage
+  from "../../features/form-types/pages/FormTypesPage";
+
+import FormTypeFormPage
+  from "../../features/form-types/pages/FormTypeFormPage";
+
+import ProfilePage
+  from "../../features/profile/pages/ProfilePage";
+
 function HomeRedirect() {
   return <div>Home</div>;
 }
@@ -37,16 +49,8 @@ function RegisterPage() {
   return <div>Register</div>;
 }
 
-function FormTypesPlaceholder() {
-  return <div>Form Types</div>;
-}
-
 function ReportsPlaceholder() {
   return <div>Reports</div>;
-}
-
-function ProfilePlaceholder() {
-  return <div>Profile</div>;
 }
 
 export const router = createBrowserRouter([
@@ -79,7 +83,7 @@ export const router = createBrowserRouter([
 
           {
             path: "/profile",
-            element: <ProfilePlaceholder />,
+            element: <ProfilePage />,
           },
 
           // --------------------------------------------------
@@ -108,11 +112,23 @@ export const router = createBrowserRouter([
               },
               {
                 path: "/form-types",
-                element: <FormTypesPlaceholder />,
+                element: <FormTypesPage />,
+              },
+              {
+                path: "/form-types/new",
+                element: <FormTypeFormPage />,
+              },
+              {
+                path: "/form-types/:formTypeId/edit",
+                element: <FormTypeFormPage />,
               },
               {
                 path: "/reports",
                 element: <ReportsPlaceholder />,
+              },
+              {
+                path: "/users/:userId",
+                element: <UserDetailPage />,
               },
             ],
           },
