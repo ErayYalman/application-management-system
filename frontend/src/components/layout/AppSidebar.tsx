@@ -34,13 +34,19 @@ export default function AppSidebar() {
       label: "Dashboard",
       path: "/dashboard",
       icon: <DashboardIcon />,
-      roles: [UserResponseRoleEnum.Admin], 
+      roles: [UserResponseRoleEnum.Admin],
     },
     {
       label: "Başvurularım",
       path: "/applications/my",
       icon: <AssignmentIcon />,
-      roles: [UserResponseRoleEnum.Personnel], 
+      roles: [UserResponseRoleEnum.Personnel],
+    },
+    {
+      label: "Yeni Başvuru",
+      path: "/applications/new",
+      icon: <AssignmentIcon />,
+      roles: [UserResponseRoleEnum.Personnel],
     },
     {
       label: "Başvurular",
