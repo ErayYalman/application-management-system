@@ -23,20 +23,18 @@ import CreateApplicationPage
 import EditApplicationPage
   from "../../features/applications/pages/EditApplicationPage";
 
+import ApplicationsPage
+  from "../../features/applications/pages/ApplicationsPage";
+
+import UsersPage
+  from "../../features/users/pages/UsersPage";
+
 function HomeRedirect() {
   return <div>Home</div>;
 }
 
 function RegisterPage() {
   return <div>Register</div>;
-}
-
-function ApplicationsPlaceholder() {
-  return <div>Applications</div>;
-}
-
-function UsersPlaceholder() {
-  return <div>Users</div>;
 }
 
 function FormTypesPlaceholder() {
@@ -102,11 +100,11 @@ export const router = createBrowserRouter([
               },
               {
                 path: "/applications",
-                element: <ApplicationsPlaceholder />,
+                element: <ApplicationsPage />,
               },
               {
                 path: "/users",
-                element: <UsersPlaceholder />,
+                element: <UsersPage />,
               },
               {
                 path: "/form-types",

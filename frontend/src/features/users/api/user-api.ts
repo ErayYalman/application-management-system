@@ -1,7 +1,4 @@
-import {
-    UserControllerApi,
-
-} from "../../../api/generated";
+import { UserControllerApi } from "../../../api/generated";
 
 import apiConfiguration from "../../../api/config";
 
