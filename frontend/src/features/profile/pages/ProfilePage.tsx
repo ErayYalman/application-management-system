@@ -45,7 +45,17 @@ import {
     useAuth,
 } from "../../auth/context/AuthContext";
 
+import {
+    useNavigate,
+} from "react-router-dom";
+
 export default function ProfilePage() {
+
+    const navigate = useNavigate();
+
+    const {
+        logout,
+    } = useAuth();
 
     const { updateUser } = useAuth();
 
@@ -269,6 +279,26 @@ export default function ProfilePage() {
                         </Button>
                     </Box>
                 </CardContent>
+                <Divider sx={{ my: 3 }} />
+                <Typography
+                    variant="h6"
+                    gutterBottom
+                >
+                    Oturum
+                </Typography>
+                <Button
+                    variant="outlined"
+                    color="error"
+                    onClick={async () => {
+                        await logout();
+
+                        navigate("/login", {
+                            replace: true,
+                        });
+                    }}
+                >
+                    Çıkış Yap
+                </Button>
             </Card>
         </Box>
     );

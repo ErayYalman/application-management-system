@@ -8,6 +8,7 @@ export function useMyApplications(
     page: number,
     size: number,
     sort: string[],
+    enabled: boolean = true,
 ) {
     return useQuery({
         queryKey: [
@@ -25,5 +26,6 @@ export function useMyApplications(
                 size,
                 sort,
             ),
+        enabled,
     });
 }

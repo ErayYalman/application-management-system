@@ -1,7 +1,18 @@
-import { AuthenticationApi } from "../../../api/generated";
-import  apiConfiguration  from "../../../api/config";
+import {
+    AuthenticationApi,
+} from "../../../api/generated";
 
+import apiConfiguration
+    from "../../../api/config";
 
-const authenticationApi = new AuthenticationApi(apiConfiguration);
+import apiClient
+    from "../../../api/client";
 
-export default authenticationApi;   
+const authenticationApi =
+    new AuthenticationApi(
+        apiConfiguration,
+        undefined,
+        apiClient,
+    );
+
+export default authenticationApi;

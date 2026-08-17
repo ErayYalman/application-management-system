@@ -1,3 +1,5 @@
+/* eslint-disable react-refresh/only-export-components */
+
 import {
     createContext,
     useContext,
@@ -10,12 +12,14 @@ import {
 import type {
     LoginRequest,
     LoginResponse,
+    RegisterRequest,
     UserResponse,
 } from "../../../api/generated";
 
 import {
     login as loginApi,
     logout as logoutApi,
+    register as registerApi,
 } from "../api/auth-service";
 
 import { authStorage } from "../../../lib/auth-storage";
@@ -26,12 +30,21 @@ import {
 
 export interface AuthContextValue {
     user: UserResponse | null;
+
     isAuthenticated: boolean;
+
     isLoading: boolean;
+
     login: (
         request: LoginRequest
     ) => Promise<UserResponse>;
+
+    register: (
+        request: RegisterRequest
+    ) => Promise<UserResponse>;
+
     logout: () => Promise<void>;
+
     updateUser: (
         user: UserResponse
     ) => void;
@@ -81,6 +94,25 @@ export function AuthProvider({
         void restoreSession();
     }, []);
 
+    useEffect(() => {
+        const handleAuthLogout = () => {
+            authStorage.clear();
+            setUser(null);
+        };
+
+        window.addEventListener(
+            "auth:logout",
+            handleAuthLogout,
+        );
+
+        return () => {
+            window.removeEventListener(
+                "auth:logout",
+                handleAuthLogout,
+            );
+        };
+    }, []);
+
     const login = async (
         request: LoginRequest,
     ): Promise<UserResponse> => {
@@ -94,6 +126,32 @@ export function AuthProvider({
         ) {
             throw new Error(
                 "Login was successful, but the details received from the server were incomplete!",
+            );
+        }
+
+        authStorage.setTokens(
+            response.accessToken,
+            response.refreshToken,
+        );
+
+        setUser(response.user);
+
+        return response.user;
+    };
+
+    const register = async (
+        request: RegisterRequest,
+    ): Promise<UserResponse> => {
+        const response: LoginResponse =
+            await registerApi(request);
+
+        if (
+            !response.accessToken ||
+            !response.refreshToken ||
+            !response.user
+        ) {
+            throw new Error(
+                "Registration was successful, but the details received from the server were incomplete!",
             );
         }
 
@@ -141,6 +199,7 @@ export function AuthProvider({
                 user !== null,
             isLoading,
             login,
+            register,
             logout,
             updateUser,
         }),

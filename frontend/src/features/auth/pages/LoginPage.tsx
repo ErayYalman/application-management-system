@@ -29,8 +29,6 @@ import {
     type LoginFormData,
 } from "../schemas/login-schema";
 
-import { UserResponseRoleEnum } from "../../../api/generated";
-
 export default function LoginPage() {
     const navigate = useNavigate();
     const { login } = useAuth();
@@ -53,13 +51,11 @@ export default function LoginPage() {
         setServerError(null);
 
         try {
-            const loggedInUser = await login(data);
+            await login(data);
 
-            if (loggedInUser.role === UserResponseRoleEnum.Admin) {
-                navigate("/dashboard", { replace: true });
-            } else {
-                navigate("/applications/my", { replace: true });
-            }
+            navigate("/home", {
+                replace: true,
+            });
         } catch (error) {
             console.error(error);
             setServerError("Email veya şifre hatalı.");

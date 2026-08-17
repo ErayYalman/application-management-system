@@ -13,6 +13,7 @@ export function useAllApplications(
   page?: number,
   size?: number,
   sort?: string[],
+  enabled = true,
 ) {
   return useQuery({
     queryKey: [
@@ -30,5 +31,6 @@ export function useAllApplications(
         size,
         sort,
       ),
+    enabled,
   });
 }

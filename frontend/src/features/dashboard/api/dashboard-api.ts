@@ -1,10 +1,18 @@
 import {
-  DashboardControllerApi,
+    DashboardControllerApi,
 } from "../../../api/generated";
 
-import apiConfiguration from "../../../api/config";
+import apiConfiguration
+    from "../../../api/config";
+
+import apiClient
+    from "../../../api/client";
 
 const dashboardApi =
-  new DashboardControllerApi(apiConfiguration);
+    new DashboardControllerApi(
+        apiConfiguration,
+        undefined,
+        apiClient,
+    );
 
 export default dashboardApi;

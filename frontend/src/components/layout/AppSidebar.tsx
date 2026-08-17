@@ -8,6 +8,8 @@ import {
   Toolbar,
 } from "@mui/material";
 
+import HomeIcon from "@mui/icons-material/Home";
+
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import AssignmentIcon from "@mui/icons-material/Assignment";
 import PeopleIcon from "@mui/icons-material/People";
@@ -30,6 +32,15 @@ export default function AppSidebar() {
   const location = useLocation();
 
   const menuItems = [
+    {
+      label: "Ana Sayfa",
+      path: "/home",
+      icon: <HomeIcon />,
+      roles: [
+        UserResponseRoleEnum.Admin,
+        UserResponseRoleEnum.Personnel,
+      ],
+    },
     {
       label: "Dashboard",
       path: "/dashboard",
@@ -84,7 +95,7 @@ export default function AppSidebar() {
   ];
 
   const visibleItems = menuItems.filter((item) =>
-    user ? item.roles.includes(user.role) : false,
+    user?.role ? item.roles.includes(user.role) : false,
   );
 
   return (

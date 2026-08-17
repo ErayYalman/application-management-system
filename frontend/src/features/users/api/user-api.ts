@@ -1,7 +1,18 @@
-import { UserControllerApi } from "../../../api/generated";
+import {
+    UserControllerApi,
+} from "../../../api/generated";
 
-import apiConfiguration from "../../../api/config";
+import apiConfiguration
+    from "../../../api/config";
 
-const userApi = new UserControllerApi(apiConfiguration);
+import apiClient
+    from "../../../api/client";
+
+const userApi =
+    new UserControllerApi(
+        apiConfiguration,
+        undefined,
+        apiClient,
+    );
 
 export default userApi;
