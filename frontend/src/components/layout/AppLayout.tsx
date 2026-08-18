@@ -1,35 +1,69 @@
 import {
   Box,
   Toolbar,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
 
-import {
-  Outlet,
-} from "react-router-dom";
+import { useState } from "react";
+import { Outlet } from "react-router-dom";
 
 import AppHeader from "./AppHeader";
 import AppSidebar from "./AppSidebar";
-
-const drawerWidth = 240;
+import { tokens } from "../../app/theme";
 
 export default function AppLayout() {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const [mobileOpen, setMobileOpen] = useState(false);
+
+  const handleMobileMenuToggle = () => {
+    setMobileOpen((prev) => !prev);
+  };
+
+  const handleMobileClose = () => {
+    setMobileOpen(false);
+  };
+
   return (
-    <Box sx={{ display: "flex" }}>
-      <AppHeader />
-      <AppSidebar />
+    <Box sx={{ display: "flex", minHeight: "100dvh" }}>
+      <AppHeader onMobileMenuToggle={handleMobileMenuToggle} />
+
+      <AppSidebar
+        mobileOpen={mobileOpen}
+        onMobileClose={handleMobileClose}
+      />
 
       <Box
         component="main"
         sx={{
           flexGrow: 1,
-          p: 3,
-          width: `calc(100% - ${drawerWidth}px)`,
-          minHeight: "100vh",
+          width: isMobile
+            ? "100%"
+            : `calc(100% - ${tokens.layout.sidebarWidth}px)`,
+          bgcolor: "background.default",
+          minHeight: "100dvh",
+          display: "flex",
+          flexDirection: "column",
         }}
       >
-        <Toolbar />
+        {/* Spacer matching header height */}
+        <Toolbar
+          sx={{
+            minHeight: `${tokens.layout.headerHeight}px !important`,
+          }}
+        />
 
-        <Outlet />
+        {/* Page content */}
+        <Box
+          sx={{
+            flexGrow: 1,
+            px: { xs: 2, md: 3 },
+            py: 3,
+          }}
+        >
+          <Outlet />
+        </Box>
       </Box>
     </Box>
   );
