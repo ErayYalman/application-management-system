@@ -8,7 +8,9 @@ import {
   Select,
   TextField,
   Typography,
+  useTheme,
 } from "@mui/material";
+import FilterListIcon from "@mui/icons-material/FilterList";
 
 import {
   useNavigate,
@@ -43,7 +45,7 @@ import {
 } from "../api/user-service";
 
 export default function UsersPage() {
-  
+  const theme = useTheme();
   const navigate = useNavigate();
 
   const [page, setPage] =
@@ -171,118 +173,139 @@ export default function UsersPage() {
 
       <Box
         sx={{
-          display: "flex",
-          gap: 2,
-          flexWrap: "wrap",
-          mb: 3,
+          mb: 4,
+          backgroundColor: "background.paper",
+          p: 2.5,
+          borderRadius: 2,
+          boxShadow: theme.palette.mode === "light" ? "0 4px 12px rgba(0,0,0,0.03)" : "none",
+          border: `1px solid ${theme.palette.divider}`,
         }}
       >
-        <TextField
-          label="Anahtar kelime"
-          size="small"
-          value={keywordInput}
-          onChange={(event) =>
-            setKeywordInput(
-              event.target.value,
-            )
-          }
-          onKeyDown={(event) => {
-            if (
-              event.key === "Enter"
-            ) {
-              handleSearch();
-            }
+        <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+          <FilterListIcon sx={{ color: "text.secondary", mr: 1, fontSize: "1.2rem" }} />
+          <Typography variant="subtitle2" sx={{ fontWeight: 600, color: "text.secondary", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+            Filtreleme Seçenekleri
+          </Typography>
+        </Box>
+        
+        <Box
+          sx={{
+            display: "flex",
+            gap: 2,
+            flexWrap: "wrap",
+            alignItems: "center",
           }}
-        />
-
-        <FormControl
-          size="small"
-          sx={{ minWidth: 150 }}
         >
-          <InputLabel>
-            Rol
-          </InputLabel>
-
-          <Select
-            value={role}
-            label="Rol"
+          <TextField
+            label="Anahtar kelime"
+            size="small"
+            value={keywordInput}
             onChange={(event) =>
-              setRole(
-                event.target.value as
-                | UserResponseRoleEnum
-                | "",
+              setKeywordInput(
+                event.target.value,
               )
             }
-          >
-            <MenuItem value="">
-              Tümü
-            </MenuItem>
+            onKeyDown={(event) => {
+              if (
+                event.key === "Enter"
+              ) {
+                handleSearch();
+              }
+            }}
+          />
 
-            <MenuItem
-              value={
-                UserResponseRoleEnum.Personnel
+          <FormControl
+            size="small"
+            sx={{ minWidth: 150 }}
+          >
+            <InputLabel>
+              Rol
+            </InputLabel>
+
+            <Select
+              value={role}
+              label="Rol"
+              onChange={(event) =>
+                setRole(
+                  event.target.value as
+                  | UserResponseRoleEnum
+                  | "",
+                )
               }
             >
-              PERSONNEL
-            </MenuItem>
+              <MenuItem value="">
+                Tümü
+              </MenuItem>
 
-            <MenuItem
-              value={
-                UserResponseRoleEnum.Admin
+              <MenuItem
+                value={
+                  UserResponseRoleEnum.Personnel
+                }
+              >
+                PERSONNEL
+              </MenuItem>
+
+              <MenuItem
+                value={
+                  UserResponseRoleEnum.Admin
+                }
+              >
+                ADMIN
+              </MenuItem>
+            </Select>
+          </FormControl>
+
+          <FormControl
+            size="small"
+            sx={{ minWidth: 150 }}
+          >
+            <InputLabel>
+              Durum
+            </InputLabel>
+
+            <Select
+              value={active}
+              label="Durum"
+              onChange={(event) =>
+                setActive(
+                  event.target.value as
+                  | ""
+                  | "true"
+                  | "false",
+                )
               }
             >
-              ADMIN
-            </MenuItem>
-          </Select>
-        </FormControl>
+              <MenuItem value="">
+                Tümü
+              </MenuItem>
 
-        <FormControl
-          size="small"
-          sx={{ minWidth: 150 }}
-        >
-          <InputLabel>
-            Durum
-          </InputLabel>
+              <MenuItem value="true">
+                Aktif
+              </MenuItem>
 
-          <Select
-            value={active}
-            label="Durum"
-            onChange={(event) =>
-              setActive(
-                event.target.value as
-                | ""
-                | "true"
-                | "false",
-              )
-            }
-          >
-            <MenuItem value="">
-              Tümü
-            </MenuItem>
+              <MenuItem value="false">
+                Pasif
+              </MenuItem>
+            </Select>
+          </FormControl>
 
-            <MenuItem value="true">
-              Aktif
-            </MenuItem>
+          <Box sx={{ display: "flex", gap: 1, ml: "auto" }}>
+            <Button
+              variant="contained"
+              onClick={handleSearch}
+            >
+              Filtrele
+            </Button>
 
-            <MenuItem value="false">
-              Pasif
-            </MenuItem>
-          </Select>
-        </FormControl>
-
-        <Button
-          variant="contained"
-          onClick={handleSearch}
-        >
-          Filtrele
-        </Button>
-
-        <Button
-          variant="outlined"
-          onClick={handleClear}
-        >
-          Temizle
-        </Button>
+            <Button
+              variant="outlined"
+              color="secondary"
+              onClick={handleClear}
+            >
+              Temizle
+            </Button>
+          </Box>
+        </Box>
       </Box>
 
       <UsersTable

@@ -8,7 +8,9 @@ import {
     Select,
     TextField,
     Typography,
+    useTheme
 } from "@mui/material";
+import FilterListIcon from "@mui/icons-material/FilterList";
 import type { GridSortModel } from "@mui/x-data-grid";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -21,6 +23,7 @@ import { useFormTypes } from "../../form-types/hooks/use-form-types";
 import ApplicationsTable from "../components/ApplicationsTable";
 
 export default function ApplicationsPage() {
+    const theme = useTheme();
     const navigate = useNavigate();
 
     const [page, setPage] = useState(0);
@@ -41,7 +44,12 @@ export default function ApplicationsPage() {
 
     const { data: formTypes = [] } = useFormTypes();
 
-    const sort = sortModel.map((item) => `${item.field},${item.sort}`);
+    const sort = sortModel.map((item) => {
+        let field = item.field;
+        if (field === "applicantFullName") field = "user.name";
+        if (field === "formTypeName") field = "formType.name";
+        return `${field},${item.sort}`;
+    });
 
     const { data, isLoading, isError } = useAllApplications(
         request,
@@ -100,13 +108,30 @@ export default function ApplicationsPage() {
 
             <Box
                 sx={{
-                    display: "flex",
-                    gap: 2,
-                    flexWrap: "wrap",
-                    mb: 3,
+                    mb: 4,
+                    backgroundColor: "background.paper",
+                    p: 2.5,
+                    borderRadius: 2,
+                    boxShadow: theme.palette.mode === "light" ? "0 4px 12px rgba(0,0,0,0.03)" : "none",
+                    border: `1px solid ${theme.palette.divider}`,
                 }}
             >
-                <TextField
+                <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+                    <FilterListIcon sx={{ color: "text.secondary", mr: 1, fontSize: "1.2rem" }} />
+                    <Typography variant="subtitle2" sx={{ fontWeight: 600, color: "text.secondary", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                        Filtreleme Seçenekleri
+                    </Typography>
+                </Box>
+                
+                <Box
+                    sx={{
+                        display: "flex",
+                        flexWrap: "wrap",
+                        gap: 2,
+                        alignItems: "center",
+                    }}
+                >
+                    <TextField
                     label="Anahtar kelime"
                     size="small"
                     value={keywordInput}
@@ -174,13 +199,16 @@ export default function ApplicationsPage() {
                     }}
                 />
 
-                <Button variant="contained" onClick={handleSearch}>
-                    Filtrele
-                </Button>
+                <Box sx={{ display: "flex", gap: 1, ml: "auto" }}>
+                    <Button variant="contained" onClick={handleSearch}>
+                        Filtrele
+                    </Button>
 
-                <Button variant="outlined" onClick={handleClearFilters}>
-                    Temizle
-                </Button>
+                    <Button variant="outlined" color="secondary" onClick={handleClearFilters}>
+                        Temizle
+                    </Button>
+                </Box>
+                </Box>
             </Box>
 
             <ApplicationsTable

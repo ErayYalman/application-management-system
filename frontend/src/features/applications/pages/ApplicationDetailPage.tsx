@@ -8,7 +8,7 @@ import {
   Divider,
   Typography,
 } from "@mui/material";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 import { useApplication } from "../hooks/use-application";
 import { useAuth } from "../../auth/context/AuthContext";
@@ -22,7 +22,9 @@ import { downloadAttachment } from "../../attachments/api/attachment-service";
 export default function ApplicationDetailPage() {
   const { applicationId } = useParams<{ applicationId: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
   const { user } = useAuth();
+  const successMessage = location.state?.successMessage;
   
   const {
     review,
@@ -63,9 +65,17 @@ export default function ApplicationDetailPage() {
 
   return (
     <Box>
-      <Button onClick={() => navigate(-1)} sx={{ mb: 2 }}>
-        Geri
-      </Button>
+      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
+        <Button onClick={() => navigate(-1)}>
+          Geri
+        </Button>
+      </Box>
+
+      {successMessage && (
+        <Alert severity="success" sx={{ mb: 3 }}>
+          {successMessage}
+        </Alert>
+      )}
 
       <Typography variant="h4" sx={{ fontWeight: 700 }} gutterBottom>
         Başvuru Detayı

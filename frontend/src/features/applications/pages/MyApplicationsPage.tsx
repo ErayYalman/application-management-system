@@ -8,9 +8,26 @@ import {
   Select,
   TextField,
   Typography,
+  useTheme,
+  IconButton,
+  Tooltip,
+  LinearProgress,
+  Pagination,
 } from "@mui/material";
 
-import { DataGrid, type GridColDef, type GridSortModel } from "@mui/x-data-grid";
+import FilterListIcon from "@mui/icons-material/FilterList";
+import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
+import StatusChip from "../../../components/StatusChip";
+
+import { 
+  DataGrid, 
+  type GridColDef, 
+  type GridSortModel,
+  gridPageCountSelector,
+  gridPageSelector,
+  useGridApiContext,
+  useGridSelector,
+} from "@mui/x-data-grid";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -22,7 +39,29 @@ import {
 import { useMyApplications } from "../hooks/use-my-applications";
 import { useFormTypes } from "../../form-types/hooks/use-form-types";
 
+function CustomPagination() {
+  const apiRef = useGridApiContext();
+  const page = useGridSelector(apiRef, gridPageSelector);
+  const pageCount = useGridSelector(apiRef, gridPageCountSelector);
+
+  return (
+    <Pagination
+      color="primary"
+      shape="rounded"
+      count={pageCount}
+      page={page + 1}
+      onChange={(_, value) => apiRef.current.setPage(value - 1)}
+      sx={{
+        ".MuiPaginationItem-root": {
+          fontWeight: 600,
+        }
+      }}
+    />
+  );
+}
+
 export default function MyApplicationsPage() {
+  const theme = useTheme();
   const navigate = useNavigate();
 
   // Pagination & Search States
@@ -47,7 +86,11 @@ export default function MyApplicationsPage() {
 
   // Data Fetching
   const { data: formTypes = [] } = useFormTypes();
-  const sort = sortModel.map((item) => `${item.field},${item.sort}`);
+  const sort = sortModel.map((item) => {
+    let field = item.field;
+    if (field === "formTypeName") field = "formType.name";
+    return `${field},${item.sort}`;
+  });
 
   const { data, isLoading, isError } = useMyApplications(
     request,
@@ -72,6 +115,7 @@ export default function MyApplicationsPage() {
       field: "status",
       headerName: "Durum",
       width: 140,
+      renderCell: (params) => <StatusChip status={params.row.status} />,
     },
     {
       field: "createdAt",
@@ -83,16 +127,22 @@ export default function MyApplicationsPage() {
     {
       field: "actions",
       headerName: "İşlem",
-      width: 130,
+      width: 80,
       sortable: false,
       filterable: false,
+      align: "center",
       renderCell: (params) => (
-        <Button
-          size="small"
-          onClick={() => navigate(`/applications/${params.row.id}`)}
-        >
-          Görüntüle
-        </Button>
+        <Tooltip title="Görüntüle">
+          <IconButton
+            size="small"
+            onClick={(e) => {
+              e.stopPropagation();
+              navigate(`/applications/${params.row.id}`);
+            }}
+          >
+            <VisibilityOutlinedIcon fontSize="small" />
+          </IconButton>
+        </Tooltip>
       ),
     },
   ];
@@ -154,18 +204,30 @@ export default function MyApplicationsPage() {
       {/* Filtreleme Alanı */}
       <Box
         sx={{
-          display: "flex",
-          flexWrap: "wrap",
-          gap: 2,
           mb: 4,
-          alignItems: "center",
-          backgroundColor: "#fff",
+          backgroundColor: "background.paper",
           p: 2.5,
           borderRadius: 2,
-          boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
+          boxShadow: theme.palette.mode === "light" ? "0 4px 12px rgba(0,0,0,0.03)" : "none",
+          border: `1px solid ${theme.palette.divider}`,
         }}
       >
-        <TextField
+        <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+          <FilterListIcon sx={{ color: "text.secondary", mr: 1, fontSize: "1.2rem" }} />
+          <Typography variant="subtitle2" sx={{ fontWeight: 600, color: "text.secondary", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+            Filtreleme Seçenekleri
+          </Typography>
+        </Box>
+
+        <Box
+          sx={{
+            display: "flex",
+            flexWrap: "wrap",
+            gap: 2,
+            alignItems: "center",
+          }}
+        >
+          <TextField
           label="Anahtar kelime"
           value={keywordInput}
           onChange={(event) => setKeywordInput(event.target.value)}
@@ -248,10 +310,11 @@ export default function MyApplicationsPage() {
             Temizle
           </Button>
         </Box>
+        </Box>
       </Box>
 
       {/* DataGrid Tablosu */}
-      <Box sx={{ height: 600, width: "100%", backgroundColor: "#fff", borderRadius: 2 }}>
+      <Box sx={{ height: 600, width: "100%" }}>
         <DataGrid
           rows={data?.content ?? []}
           columns={columns}
@@ -288,6 +351,86 @@ export default function MyApplicationsPage() {
           }}
           pageSizeOptions={[10, 20, 50, 100]}
           disableRowSelectionOnClick
+          disableColumnMenu
+          disableColumnFilter
+          disableColumnSelector
+          disableDensitySelector
+          onRowClick={(params) => navigate(`/applications/${params.row.id}`)}
+          slots={{
+            loadingOverlay: () => <LinearProgress />,
+            pagination: CustomPagination,
+          }}
+          slotProps={{
+            pagination: {
+              labelRowsPerPage: "Sayfa başına kayıt:",
+              labelDisplayedRows: ({ from, to, count }: { from: number; to: number; count: number }) => 
+                `${from} - ${to} / ${count !== -1 ? count : `daha fazla ${to}`}`,
+            } as any,
+          }}
+          localeText={{
+            noRowsLabel: "Kayıtlı başvuru bulunmamaktadır.",
+            footerTotalVisibleRows: (visibleCount, totalCount) =>
+              `${visibleCount.toLocaleString("tr-TR")} / ${totalCount.toLocaleString("tr-TR")}`,
+            footerRowSelected: (count) =>
+              count !== 1
+                ? `${count.toLocaleString("tr-TR")} satır seçildi`
+                : `${count.toLocaleString("tr-TR")} satır seçildi`,
+          }}
+          sx={{
+            border: "none",
+            backgroundColor: theme.palette.mode === "light" ? "#fff" : "background.paper",
+            borderRadius: 3,
+            boxShadow: theme.palette.mode === "light" ? "0 4px 12px rgba(0,0,0,0.03)" : "none",
+            px: 2,
+            pb: 2,
+            "& .MuiDataGrid-columnHeaders": {
+              borderBottom: "2px solid",
+              borderColor: "divider",
+              backgroundColor: "transparent",
+              color: "text.secondary",
+              textTransform: "uppercase",
+              fontSize: "0.75rem",
+              letterSpacing: "0.5px",
+            },
+            "& .MuiDataGrid-iconSeparator": {
+              display: "none",
+            },
+            "& .MuiDataGrid-row": {
+              borderBottom: "1px solid",
+              borderColor: "divider",
+              transition: "background-color 0.2s ease",
+              position: "relative",
+              "&:hover": {
+                cursor: "pointer",
+                backgroundColor: theme.palette.mode === "light" ? "rgba(0,0,0,0.02)" : "rgba(255,255,255,0.02)",
+                "&::before": {
+                  content: '""',
+                  position: "absolute",
+                  left: 0,
+                  top: 0,
+                  bottom: 0,
+                  width: "4px",
+                  backgroundColor: theme.palette.primary.main,
+                  borderTopRightRadius: "4px",
+                  borderBottomRightRadius: "4px",
+                }
+              },
+            },
+            "& .MuiDataGrid-cell": {
+              borderBottom: "none",
+            },
+            "& .MuiDataGrid-cell:focus, & .MuiDataGrid-cell:focus-within": {
+              outline: "none",
+            },
+            "& .MuiDataGrid-columnHeader:focus, & .MuiDataGrid-columnHeader:focus-within": {
+              outline: "none",
+            },
+            "& .MuiDataGrid-footerContainer": {
+              borderTop: "none",
+              mt: 2,
+              justifyContent: "flex-end",
+            },
+          }}
         />
       </Box>
     </Box>

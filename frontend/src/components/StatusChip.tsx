@@ -1,44 +1,52 @@
-import { Chip, type ChipProps, useTheme } from "@mui/material";
+import { Chip, type ChipProps } from "@mui/material";
 
-import FiberNewIcon from "@mui/icons-material/FiberNew";
-import HourglassTopIcon from "@mui/icons-material/HourglassTop";
-import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import CancelIcon from "@mui/icons-material/Cancel";
-import DoNotDisturbOnIcon from "@mui/icons-material/DoNotDisturbOn";
+import FiberNewOutlinedIcon from "@mui/icons-material/FiberNewOutlined";
+import HourglassEmptyOutlinedIcon from "@mui/icons-material/HourglassEmptyOutlined";
+import CheckCircleOutlinedIcon from "@mui/icons-material/CheckCircleOutlined";
+import CancelOutlinedIcon from "@mui/icons-material/CancelOutlined";
+import BlockOutlinedIcon from "@mui/icons-material/BlockOutlined";
 
-import type { ApplicationResponseStatusEnum } from "../api/generated";
+import { ApplicationResponseStatusEnum } from "../api/generated";
+
+const COLORS = {
+  new: "#155EEF",       // Brand Blue for New
+  pending: "#F79009",   // Warning Orange for In Review
+  approved: "#12B76A",  // Success Green for Approved
+  rejected: "#F04438",  // Error Red for Rejected
+  cancelled: "#64748B", // Slate/Gray for Cancelled
+};
 
 interface StatusConfig {
   label: string;
-  colorType: "info" | "warning" | "success" | "error" | "secondary";
+  color: string;
   icon: React.ReactElement;
 }
 
 const statusConfig: Record<string, StatusConfig> = {
-  NEW: {
+  [ApplicationResponseStatusEnum.New]: {
     label: "Yeni",
-    colorType: "info",
-    icon: <FiberNewIcon fontSize="small" />,
+    color: COLORS.new,
+    icon: <FiberNewOutlinedIcon sx={{ fontSize: "1rem" }} />,
   },
-  IN_REVIEW: {
+  [ApplicationResponseStatusEnum.InReview]: {
     label: "İncelemede",
-    colorType: "warning",
-    icon: <HourglassTopIcon fontSize="small" />,
+    color: COLORS.pending,
+    icon: <HourglassEmptyOutlinedIcon sx={{ fontSize: "1rem" }} />,
   },
-  APPROVED: {
+  [ApplicationResponseStatusEnum.Approved]: {
     label: "Onaylandı",
-    colorType: "success",
-    icon: <CheckCircleIcon fontSize="small" />,
+    color: COLORS.approved,
+    icon: <CheckCircleOutlinedIcon sx={{ fontSize: "1rem" }} />,
   },
-  REJECTED: {
+  [ApplicationResponseStatusEnum.Rejected]: {
     label: "Reddedildi",
-    colorType: "error",
-    icon: <CancelIcon fontSize="small" />,
+    color: COLORS.rejected,
+    icon: <CancelOutlinedIcon sx={{ fontSize: "1rem" }} />,
   },
-  CANCELLED: {
+  [ApplicationResponseStatusEnum.Cancelled]: {
     label: "İptal Edildi",
-    colorType: "secondary",
-    icon: <DoNotDisturbOnIcon fontSize="small" />,
+    color: COLORS.cancelled,
+    icon: <BlockOutlinedIcon sx={{ fontSize: "1rem" }} />,
   },
 };
 
@@ -48,31 +56,11 @@ interface StatusChipProps {
 }
 
 export default function StatusChip({ status, size = "small" }: StatusChipProps) {
-  const theme = useTheme();
   const config = statusConfig[status ?? ""] ?? {
     label: status ?? "Bilinmiyor",
-    colorType: "secondary",
-    icon: <DoNotDisturbOnIcon fontSize="small" />,
+    color: COLORS.cancelled,
+    icon: <BlockOutlinedIcon sx={{ fontSize: "1rem" }} />,
   };
-
-  const isLight = theme.palette.mode === "light";
-  
-  // Custom semantic colors tailored for enterprise look
-  let bg: string;
-  let text: string;
-  let border: string;
-
-  if (config.colorType === "secondary") {
-    bg = isLight ? "#F1F5F9" : "rgba(100, 116, 139, 0.1)";
-    text = isLight ? "#475569" : "#94A3B8";
-    border = isLight ? "#CBD5E1" : "#475569";
-  } else {
-    // Get colors from semantic palette (info, warning, success, error)
-    const palette = theme.palette[config.colorType];
-    bg = isLight ? palette.light : (palette.light as string); // In our theme.ts, dark mode .light is an rgba string
-    text = isLight ? palette.dark : palette.main; // Make text punchy
-    border = isLight ? palette.main + "40" : palette.main + "40"; // Light border with opacity
-  }
 
   return (
     <Chip
@@ -80,12 +68,14 @@ export default function StatusChip({ status, size = "small" }: StatusChipProps) 
       icon={config.icon}
       size={size}
       sx={{
-        bgcolor: bg,
-        color: text,
-        border: `1px solid ${border}`,
+        bgcolor: `${config.color}15`,
+        color: config.color,
         fontWeight: 600,
+        borderRadius: "6px",
+        border: "none",
         "& .MuiChip-icon": {
-          color: text,
+          color: config.color,
+          ml: 0.5,
         },
       }}
     />
