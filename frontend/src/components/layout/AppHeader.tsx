@@ -62,7 +62,7 @@ export default function AppHeader({ onMobileMenuToggle }: AppHeaderProps) {
 
     await logout();
 
-    navigate("/login", {
+    navigate("/ApplicationManagementSystem", {
       replace: true,
     });
   };

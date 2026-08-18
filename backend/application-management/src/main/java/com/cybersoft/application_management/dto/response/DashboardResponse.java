@@ -23,6 +23,8 @@ public class DashboardResponse {
 
     private long rejectedApplications;
 
+    private long cancelledApplications;
+
     private long todayApplications;
 
     private List<ApplicationResponse> latestApplications;

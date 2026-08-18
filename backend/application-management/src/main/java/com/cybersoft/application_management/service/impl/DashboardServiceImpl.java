@@ -48,6 +48,9 @@ public class DashboardServiceImpl implements DashboardService {
         long rejectedApplications = applicationFormRepository.countByStatus(
                 ApplicationStatus.REJECTED);
 
+        long cancelledApplications = applicationFormRepository.countByStatus(
+                ApplicationStatus.CANCELLED);
+
         Instant startOfToday = LocalDate.now(ZoneId.of("Europe/Istanbul"))
                 .atStartOfDay(ZoneId.of("Europe/Istanbul"))
                 .toInstant();
@@ -75,6 +78,7 @@ public class DashboardServiceImpl implements DashboardService {
                 .pendingApplications(pendingApplications)
                 .approvedApplications(approvedApplications)
                 .rejectedApplications(rejectedApplications)
+                .cancelledApplications(cancelledApplications)
                 .todayApplications(todayApplications)
                 .latestApplications(latesResponses)
                 .build();

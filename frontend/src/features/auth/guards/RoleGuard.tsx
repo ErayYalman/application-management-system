@@ -10,11 +10,11 @@ export default function RoleGuard({ allowedRoles }: RoleGuardProps) {
   const { user } = useAuth();
 
   if (!user) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/ApplicationManagementSystem" replace />;
   }
 
   if (!user.role || !allowedRoles.includes(user.role)) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/home" replace />;
   }
 
   return <Outlet />;

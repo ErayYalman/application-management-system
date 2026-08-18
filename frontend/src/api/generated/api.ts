@@ -100,6 +100,7 @@ export interface DashboardResponse {
     'pendingApplications'?: number;
     'approvedApplications'?: number;
     'rejectedApplications'?: number;
+    'cancelledApplications'?: number;
     'todayApplications'?: number;
     'latestApplications'?: Array<ApplicationResponse>;
 }

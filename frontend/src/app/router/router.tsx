@@ -2,6 +2,9 @@ import { createBrowserRouter } from "react-router-dom";
 
 import { UserResponseRoleEnum } from "../../api/generated";
 
+import LandingPage
+  from "../../features/landing/pages/LandingPage";
+
 import LoginPage
   from "../../features/auth/pages/LoginPage";
 
@@ -56,15 +59,22 @@ import ProfilePage
 import HomePage
   from "../../features/home/pages/HomePage";
 
-import {
-    Navigate,
-} from "react-router-dom";
-
+import { Navigate } from "react-router-dom";
 
 export const router = createBrowserRouter([
   // --------------------------------------------------
   // PUBLIC ROUTES
   // --------------------------------------------------
+  {
+    path: "/",
+    element: <Navigate to="/ApplicationManagementSystem" replace />,
+  },
+
+  {
+    path: "/ApplicationManagementSystem",
+    element: <LandingPage />,
+  },
+
   {
     path: "/login",
     element: <LoginPage />,
@@ -88,11 +98,6 @@ export const router = createBrowserRouter([
           // --------------------------------------------------
           // COMMON AUTHENTICATED ROUTES
           // --------------------------------------------------
-          {
-            path: "/",
-            element: <Navigate to="/home" replace />,
-          },
-
           {
             path: "/home",
             element: <HomePage />,

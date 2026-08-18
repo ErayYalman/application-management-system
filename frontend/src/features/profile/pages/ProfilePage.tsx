@@ -293,7 +293,7 @@ export default function ProfilePage() {
                     onClick={async () => {
                         await logout();
 
-                        navigate("/login", {
+                        navigate("/ApplicationManagementSystem", {
                             replace: true,
                         });
                     }}

@@ -173,19 +173,18 @@ export default function HomePage() {
               <Card
                 sx={{
                   height: "100%",
-                  bgcolor: action.primary ? (theme.palette.mode === "light" ? "primary.light" : "rgba(21, 94, 239, 0.1)") : "background.paper",
-                  borderColor: action.primary ? "primary.main" : "divider",
-                  borderWidth: action.primary ? 2 : 1,
+                  bgcolor: "background.paper",
+                  border: `1px solid ${theme.palette.divider}`,
                 }}
               >
                 <CardActionArea
                   onClick={() => navigate(action.path)}
                   sx={{ height: "100%", p: 2, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 1.5 }}
                 >
-                  <Box sx={{ color: action.primary ? "primary.main" : "text.secondary", display: "flex" }}>
+                  <Box sx={{ color: "text.secondary", display: "flex" }}>
                     {action.icon}
                   </Box>
-                  <Typography variant="body2" sx={{ fontWeight: 600, color: action.primary ? "primary.main" : "text.primary", textAlign: "center" }}>
+                  <Typography variant="body2" sx={{ fontWeight: 600, color: "text.primary", textAlign: "center" }}>
                     {action.label}
                   </Typography>
                 </CardActionArea>

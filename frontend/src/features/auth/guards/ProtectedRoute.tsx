@@ -21,7 +21,7 @@ export default function ProtectedRoute() {
   if (!isAuthenticated) {
     return (
       <Navigate
-        to="/login"
+        to="/ApplicationManagementSystem"
         replace
         state={{ from: location }}
       />
