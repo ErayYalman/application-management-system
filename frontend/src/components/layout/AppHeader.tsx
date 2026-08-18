@@ -17,12 +17,14 @@ import {
 import PersonOutlineIcon from "@mui/icons-material/PersonOutlined";
 import LogoutIcon from "@mui/icons-material/Logout";
 import MenuIcon from "@mui/icons-material/Menu";
+import LightModeIcon from "@mui/icons-material/LightMode";
+import DarkModeIcon from "@mui/icons-material/DarkMode";
 
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { useAuth } from "../../features/auth/context/AuthContext";
-import { tokens } from "../../app/theme";
+import { useAppTheme } from "../../app/providers/ThemeContext";
 
 interface AppHeaderProps {
   onMobileMenuToggle?: () => void;
@@ -32,6 +34,7 @@ export default function AppHeader({ onMobileMenuToggle }: AppHeaderProps) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const theme = useTheme();
+  const { mode, toggleTheme } = useAppTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const [anchorEl, setAnchorEl] =
@@ -75,16 +78,17 @@ export default function AppHeader({ onMobileMenuToggle }: AppHeaderProps) {
       sx={{
         width: isMobile
           ? "100%"
-          : `calc(100% - ${tokens.layout.sidebarWidth}px)`,
-        ml: isMobile ? 0 : `${tokens.layout.sidebarWidth}px`,
-        bgcolor: "background.paper",
-        color: "text.primary",
-        borderBottom: `1px solid ${tokens.colors.border.main}`,
+          : `calc(100% - 240px)`,
+        ml: isMobile ? 0 : `240px`,
+        bgcolor: theme.palette.mode === "light" ? "#001529" : "background.paper",
+        color: theme.palette.mode === "light" ? "#FFFFFF" : "text.primary",
+        borderBottom: `1px solid ${theme.palette.mode === "light" ? "#001529" : theme.palette.divider}`,
+        backgroundImage: "none",
       }}
     >
       <Toolbar
         sx={{
-          minHeight: `${tokens.layout.headerHeight}px !important`,
+          minHeight: `64px !important`,
           px: { xs: 2, md: 3 },
         }}
       >
@@ -93,7 +97,7 @@ export default function AppHeader({ onMobileMenuToggle }: AppHeaderProps) {
           <IconButton
             edge="start"
             onClick={onMobileMenuToggle}
-            sx={{ mr: 1, color: "text.secondary" }}
+            sx={{ mr: 1, color: theme.palette.mode === "light" ? "rgba(255,255,255,0.8)" : "text.secondary" }}
             aria-label="Menüyü aç"
           >
             <MenuIcon />
@@ -107,7 +111,7 @@ export default function AppHeader({ onMobileMenuToggle }: AppHeaderProps) {
             flexGrow: 1,
             fontWeight: 600,
             fontSize: "1rem",
-            color: "text.primary",
+            color: theme.palette.mode === "light" ? "#FFFFFF" : "text.primary",
           }}
         >
           Application Management System
@@ -119,7 +123,7 @@ export default function AppHeader({ onMobileMenuToggle }: AppHeaderProps) {
             <Typography
               variant="body2"
               sx={{
-                color: "text.secondary",
+                color: theme.palette.mode === "light" ? "rgba(255,255,255,0.8)" : "text.secondary",
                 fontWeight: 500,
                 mr: 0.5,
               }}
@@ -129,22 +133,37 @@ export default function AppHeader({ onMobileMenuToggle }: AppHeaderProps) {
           )}
 
           <IconButton
+            onClick={toggleTheme}
+            size="small"
+            aria-label="Tema değiştir"
+            sx={{
+              mr: 1,
+              color: theme.palette.mode === "light" ? "rgba(255,255,255,0.8)" : "text.secondary",
+              "&:hover": { bgcolor: theme.palette.mode === "light" ? "rgba(255,255,255,0.1)" : "rgba(255,255,255,0.05)", color: "#FFFFFF" },
+            }}
+          >
+            {mode === "dark" ? (
+              <LightModeIcon fontSize="small" />
+            ) : (
+              <DarkModeIcon fontSize="small" />
+            )}
+          </IconButton>
+
+          <IconButton
             onClick={handleProfileMenuOpen}
             size="small"
             aria-label="Kullanıcı menüsü"
             sx={{
               p: 0.5,
-              "&:hover": {
-                bgcolor: tokens.colors.border.light,
-              },
+              "&:hover": { bgcolor: theme.palette.mode === "light" ? "rgba(255,255,255,0.1)" : "rgba(255,255,255,0.05)" },
             }}
           >
             <Avatar
               sx={{
                 width: 34,
                 height: 34,
-                bgcolor: tokens.colors.primary.main,
-                color: tokens.colors.primary.contrastText,
+                bgcolor: theme.palette.mode === "light" ? "primary.main" : "primary.main",
+                color: theme.palette.mode === "light" ? "#FFFFFF" : "primary.contrastText",
                 fontSize: "0.875rem",
                 fontWeight: 600,
               }}

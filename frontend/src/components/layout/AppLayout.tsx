@@ -10,7 +10,9 @@ import { Outlet } from "react-router-dom";
 
 import AppHeader from "./AppHeader";
 import AppSidebar from "./AppSidebar";
-import { tokens } from "../../app/theme";
+
+const SIDEBAR_WIDTH = 240;
+const HEADER_HEIGHT = 64;
 
 export default function AppLayout() {
   const theme = useTheme();
@@ -40,7 +42,7 @@ export default function AppLayout() {
           flexGrow: 1,
           width: isMobile
             ? "100%"
-            : `calc(100% - ${tokens.layout.sidebarWidth}px)`,
+            : `calc(100% - ${SIDEBAR_WIDTH}px)`,
           bgcolor: "background.default",
           minHeight: "100dvh",
           display: "flex",
@@ -50,7 +52,7 @@ export default function AppLayout() {
         {/* Spacer matching header height */}
         <Toolbar
           sx={{
-            minHeight: `${tokens.layout.headerHeight}px !important`,
+            minHeight: `${HEADER_HEIGHT}px !important`,
           }}
         />
 

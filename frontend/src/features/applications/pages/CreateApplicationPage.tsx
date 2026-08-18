@@ -90,7 +90,8 @@ export default function CreateApplicationPage() {
       navigate(
         `/applications/${application.id}`,
       );
-    } catch {
+    } catch (error) {
+      console.error("Failed to create application:", error);
     }
   };
 

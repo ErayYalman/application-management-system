@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* tslint:disable */
 /**
  * Cybersoft Application Management System API

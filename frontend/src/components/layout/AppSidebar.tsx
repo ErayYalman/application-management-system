@@ -29,7 +29,9 @@ import {
 
 import { UserResponseRoleEnum } from "../../api/generated";
 import { useAuth } from "../../features/auth/context/AuthContext";
-import { tokens } from "../../app/theme";
+
+const SIDEBAR_WIDTH = 240;
+const HEADER_HEIGHT = 64;
 
 interface AppSidebarProps {
   mobileOpen?: boolean;
@@ -124,24 +126,25 @@ export default function AppSidebar({ mobileOpen = false, onMobileClose }: AppSid
       sx={{
         display: "flex",
         flexDirection: "column",
+        bgcolor: theme.palette.mode === "light" ? "#001529" : "background.paper",
+        color: theme.palette.mode === "light" ? "#F8FAFC" : "text.primary",
         height: "100%",
-        bgcolor: "background.paper",
       }}
     >
       {/* Logo / App Name area */}
       <Toolbar
         sx={{
-          minHeight: `${tokens.layout.headerHeight}px !important`,
+          minHeight: `${HEADER_HEIGHT}px !important`,
           px: 2.5,
-          borderBottom: `1px solid ${tokens.colors.border.main}`,
+          borderBottom: `1px solid ${theme.palette.mode === "light" ? "rgba(255,255,255,0.1)" : theme.palette.divider}`,
         }}
       >
         <Box
           sx={{
             width: 28,
             height: 28,
-            borderRadius: tokens.radius.sm,
-            bgcolor: tokens.colors.primary.main,
+            borderRadius: 1,
+            bgcolor: "primary.main",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -165,7 +168,7 @@ export default function AppSidebar({ mobileOpen = false, onMobileClose }: AppSid
           noWrap
           sx={{
             fontWeight: 600,
-            color: "text.primary",
+            color: theme.palette.mode === "light" ? "#FFFFFF" : "text.primary",
             fontSize: "0.875rem",
           }}
         >
@@ -184,23 +187,38 @@ export default function AppSidebar({ mobileOpen = false, onMobileClose }: AppSid
               selected={isSelected(item.path)}
               onClick={isMobile ? onMobileClose : undefined}
               sx={{
-                mb: 0.25,
                 py: 1,
                 px: 1.5,
+                mb: 0.25,
+                borderRadius: 1,
+                color: isSelected(item.path) 
+                  ? (theme.palette.mode === "light" ? "#FFFFFF" : "primary.main")
+                  : (theme.palette.mode === "light" ? "rgba(255,255,255,0.7)" : "text.secondary"),
+                "&.Mui-selected": {
+                  bgcolor: theme.palette.mode === "light" ? "rgba(255,255,255,0.1)" : "rgba(59, 130, 246, 0.1)",
+                  color: theme.palette.mode === "light" ? "#FFFFFF" : "primary.main",
+                  "&:hover": { bgcolor: theme.palette.mode === "light" ? "rgba(255,255,255,0.15)" : "rgba(59, 130, 246, 0.15)" },
+                },
+                "&:hover": {
+                  bgcolor: theme.palette.mode === "light" ? "rgba(255,255,255,0.05)" : "rgba(255,255,255,0.05)",
+                  color: theme.palette.mode === "light" ? "#FFFFFF" : "text.primary",
+                },
                 "& .MuiListItemIcon-root": {
                   minWidth: 36,
-                  color: isSelected(item.path)
-                    ? tokens.colors.primary.main
-                    : tokens.colors.text.secondary,
+                  color: "inherit",
                 },
               }}
             >
               <ListItemIcon>{item.icon}</ListItemIcon>
               <ListItemText
                 primary={item.label}
-                primaryTypographyProps={{
-                  fontSize: "0.875rem",
-                  fontWeight: isSelected(item.path) ? 600 : 400,
+                slotProps={{
+                  primary: {
+                    sx: {
+                      fontSize: "0.875rem",
+                      fontWeight: isSelected(item.path) ? 600 : 400,
+                    }
+                  }
                 }}
               />
             </ListItemButton>
@@ -211,7 +229,7 @@ export default function AppSidebar({ mobileOpen = false, onMobileClose }: AppSid
       {/* Bottom profile item */}
       {profileItem && (
         <>
-          <Divider />
+          <Divider sx={{ borderColor: theme.palette.mode === "light" ? "rgba(255,255,255,0.1)" : "divider" }} />
           <Box sx={{ py: 1, px: 1.5 }}>
             <ListItemButton
               component={RouterLink}
@@ -221,20 +239,35 @@ export default function AppSidebar({ mobileOpen = false, onMobileClose }: AppSid
               sx={{
                 py: 1,
                 px: 1.5,
+                borderRadius: 1,
+                color: isSelected(profileItem.path) 
+                  ? (theme.palette.mode === "light" ? "#FFFFFF" : "primary.main")
+                  : (theme.palette.mode === "light" ? "rgba(255,255,255,0.7)" : "text.secondary"),
+                "&.Mui-selected": {
+                  bgcolor: theme.palette.mode === "light" ? "rgba(255,255,255,0.1)" : "rgba(59, 130, 246, 0.1)",
+                  color: theme.palette.mode === "light" ? "#FFFFFF" : "primary.main",
+                  "&:hover": { bgcolor: theme.palette.mode === "light" ? "rgba(255,255,255,0.15)" : "rgba(59, 130, 246, 0.15)" },
+                },
+                "&:hover": {
+                  bgcolor: theme.palette.mode === "light" ? "rgba(255,255,255,0.05)" : "rgba(255,255,255,0.05)",
+                  color: theme.palette.mode === "light" ? "#FFFFFF" : "text.primary",
+                },
                 "& .MuiListItemIcon-root": {
                   minWidth: 36,
-                  color: isSelected(profileItem.path)
-                    ? tokens.colors.primary.main
-                    : tokens.colors.text.secondary,
+                  color: "inherit",
                 },
               }}
             >
               <ListItemIcon>{profileItem.icon}</ListItemIcon>
               <ListItemText
                 primary={profileItem.label}
-                primaryTypographyProps={{
-                  fontSize: "0.875rem",
-                  fontWeight: isSelected(profileItem.path) ? 600 : 400,
+                slotProps={{
+                  primary: {
+                    sx: {
+                      fontSize: "0.875rem",
+                      fontWeight: isSelected(profileItem.path) ? 600 : 400,
+                    }
+                  }
                 }}
               />
             </ListItemButton>
@@ -254,8 +287,10 @@ export default function AppSidebar({ mobileOpen = false, onMobileClose }: AppSid
         ModalProps={{ keepMounted: true }}
         sx={{
           "& .MuiDrawer-paper": {
-            width: tokens.layout.sidebarWidth,
+            width: SIDEBAR_WIDTH,
             boxSizing: "border-box",
+            bgcolor: theme.palette.mode === "light" ? "#001529" : "background.paper",
+            borderRight: theme.palette.mode === "light" ? "none" : `1px solid ${theme.palette.divider}`,
           },
         }}
       >
@@ -269,11 +304,13 @@ export default function AppSidebar({ mobileOpen = false, onMobileClose }: AppSid
     <Drawer
       variant="permanent"
       sx={{
-        width: tokens.layout.sidebarWidth,
+        width: SIDEBAR_WIDTH,
         flexShrink: 0,
         "& .MuiDrawer-paper": {
-          width: tokens.layout.sidebarWidth,
+          width: SIDEBAR_WIDTH,
           boxSizing: "border-box",
+          bgcolor: theme.palette.mode === "light" ? "#001529" : "background.paper",
+          borderRight: theme.palette.mode === "light" ? "none" : `1px solid ${theme.palette.divider}`,
         },
       }}
     >

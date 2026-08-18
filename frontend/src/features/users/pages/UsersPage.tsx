@@ -118,14 +118,6 @@ export default function UsersPage() {
     setPage(0);
   };
 
-  if (isError) {
-    return (
-      <Alert severity="error">
-        Kullanıcılar yüklenemedi.
-      </Alert>
-    );
-  }
-
   const queryClient = useQueryClient();
 
   const activateMutation =
@@ -147,6 +139,14 @@ export default function UsersPage() {
         });
       },
     });
+
+  if (isError) {
+    return (
+      <Alert severity="error">
+        Kullanıcılar yüklenemedi.
+      </Alert>
+    );
+  }
 
 
   return (

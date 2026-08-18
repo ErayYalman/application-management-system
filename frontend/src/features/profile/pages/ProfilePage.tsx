@@ -130,7 +130,8 @@ export default function ProfilePage() {
                 });
 
             updateUser(updatedUser);
-        } catch {
+        } catch (error) {
+            console.error("Failed to update profile:", error);
         }
     };
 
