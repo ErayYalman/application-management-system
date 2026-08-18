@@ -12,6 +12,7 @@ export const formTypeSchema = z.object({
 
   description: z
     .string()
+    .max(1000, "Açıklama en fazla 1000 karakter olabilir.")
     .optional(),
 });
 
