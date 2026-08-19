@@ -7,7 +7,6 @@ import {
     Grid,
     Typography,
     useTheme,
-    Chip,
     Table,
     TableBody,
     TableCell,
