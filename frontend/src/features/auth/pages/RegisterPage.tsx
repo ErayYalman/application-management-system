@@ -15,6 +15,7 @@ import {
     EmailOutlined,
     LockOutlined,
     BusinessCenterOutlined,
+    PersonAddOutlined,
 } from "@mui/icons-material";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -301,6 +302,7 @@ export default function RegisterPage() {
                             variant="contained"
                             size="large"
                             disabled={isSubmitting}
+                            startIcon={isSubmitting ? <CircularProgress size={20} color="inherit" /> : <PersonAddOutlined />}
                             sx={{
                                 mt: 2,
                                 mb: 2,
@@ -315,11 +317,7 @@ export default function RegisterPage() {
                                 }
                             }}
                         >
-                            {isSubmitting ? (
-                                <CircularProgress size={22} color="inherit" />
-                            ) : (
-                                "Kayıt Ol"
-                            )}
+                            Kayıt Ol
                         </Button>
 
                         <Box sx={{ textAlign: "center", mt: 2 }}>

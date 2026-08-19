@@ -14,6 +14,7 @@ import {
     EmailOutlined,
     LockOutlined,
     BusinessCenterOutlined,
+    LoginOutlined,
 } from "@mui/icons-material";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
 import { Controller, useForm } from "react-hook-form";
@@ -213,6 +214,7 @@ export default function LoginPage() {
                             variant="contained"
                             size="large"
                             disabled={isSubmitting}
+                            startIcon={isSubmitting ? <CircularProgress size={20} color="inherit" /> : <LoginOutlined />}
                             sx={{
                                 mt: 2,
                                 mb: 2,
@@ -227,11 +229,7 @@ export default function LoginPage() {
                                 }
                             }}
                         >
-                            {isSubmitting ? (
-                                <CircularProgress size={22} color="inherit" />
-                            ) : (
-                                "Giriş Yap"
-                            )}
+                            Giriş Yap
                         </Button>
 
                         <Box sx={{ textAlign: "center", mt: 2 }}>

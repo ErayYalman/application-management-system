@@ -103,7 +103,9 @@ export default function UsersTable({
         <Chip
           label={params.row.active ? "Aktif" : "Pasif"}
           color={params.row.active ? "success" : "default"}
+          variant={params.row.active ? "outlined" : "filled"}
           size="small"
+          sx={{ fontWeight: 600, color: params.row.active ? "success.dark" : "inherit" }}
         />
       ),
     },
@@ -163,6 +165,7 @@ export default function UsersTable({
           <Tooltip title="Görüntüle">
             <IconButton
               size="small"
+              aria-label="Kullanıcı Detayını Görüntüle"
               onClick={(e) => {
                 e.stopPropagation();
                 onView(String(params.row.id));

@@ -120,6 +120,7 @@ export default function ApplicationsTable({
         <Tooltip title="Görüntüle">
           <IconButton
             size="small"
+            aria-label="Başvuru Detayını Görüntüle"
             onClick={(e) => {
               e.stopPropagation();
               onView(String(params.row.id));

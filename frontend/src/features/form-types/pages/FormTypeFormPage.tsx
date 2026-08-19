@@ -35,6 +35,7 @@ import {
 
 import ArrowBackOutlinedIcon from "@mui/icons-material/ArrowBackOutlined";
 import DynamicFormOutlinedIcon from "@mui/icons-material/DynamicFormOutlined";
+import SaveOutlinedIcon from "@mui/icons-material/SaveOutlined";
 
 export default function FormTypeFormPage() {
   const theme = useTheme();
@@ -204,13 +205,10 @@ export default function FormTypeFormPage() {
             form="form-type-form"
             variant="contained"
             disabled={isSubmitting}
+            startIcon={isSubmitting ? <CircularProgress size={20} color="inherit" /> : <SaveOutlinedIcon />}
             sx={{ px: 4, minWidth: 200 }}
           >
-            {isSubmitting ? (
-              <CircularProgress size={24} color="inherit" />
-            ) : (
-              "Kaydet"
-            )}
+            {isEdit ? "Değişiklikleri Kaydet" : "Oluştur"}
           </Button>
         </CardActions>
       </Card>

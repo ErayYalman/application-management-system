@@ -59,6 +59,7 @@ import ArrowBackOutlinedIcon from "@mui/icons-material/ArrowBackOutlined";
 import PersonOutlineOutlinedIcon from "@mui/icons-material/PersonOutlineOutlined";
 import AdminPanelSettingsOutlinedIcon from "@mui/icons-material/AdminPanelSettingsOutlined";
 import BadgeOutlinedIcon from "@mui/icons-material/BadgeOutlined";
+import SaveOutlinedIcon from "@mui/icons-material/SaveOutlined";
 
 export default function UserDetailPage() {
     const theme = useTheme();
@@ -324,9 +325,10 @@ export default function UserDetailPage() {
                                 variant="contained"
                                 color="primary"
                                 disabled={isSubmitting || update.isPending}
-                                sx={{ px: 4, minWidth: 150 }}
+                                startIcon={isSubmitting || update.isPending ? <CircularProgress size={20} color="inherit" /> : <SaveOutlinedIcon />}
+                                sx={{ px: 4, minWidth: 200 }}
                             >
-                                {isSubmitting || update.isPending ? <CircularProgress size={24} color="inherit" /> : "Değişiklikleri Kaydet"}
+                                Değişiklikleri Kaydet
                             </Button>
                         </Box>
                     </Box>

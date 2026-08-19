@@ -38,6 +38,7 @@ import { useNavigate } from "react-router-dom";
 
 import { useDashboard } from "../hooks/use-dashboard";
 import { ApplicationResponseStatusEnum } from "../../../api/generated";
+import StatusChip from "../../../components/StatusChip";
 import type { Theme } from "@mui/material/styles";
 
 // ── Color Palette ──
@@ -138,19 +139,7 @@ export default function DashboardPage() {
     };
 
     const getStatusChip = (status?: ApplicationResponseStatusEnum) => {
-        const iconStyle = { fontSize: "1rem" };
-        switch (status) {
-            case ApplicationResponseStatusEnum.Approved:
-                return <Chip icon={<CheckCircleOutlined sx={iconStyle} />} label="Onaylandı" size="small" sx={{ bgcolor: `${COLORS.approved}15`, color: COLORS.approved, fontWeight: 600, borderRadius: "6px", "& .MuiChip-icon": { color: COLORS.approved, ml: 0.5 } }} />;
-            case ApplicationResponseStatusEnum.Rejected:
-                return <Chip icon={<CancelOutlined sx={iconStyle} />} label="Reddedildi" size="small" sx={{ bgcolor: `${COLORS.rejected}15`, color: COLORS.rejected, fontWeight: 600, borderRadius: "6px", "& .MuiChip-icon": { color: COLORS.rejected, ml: 0.5 } }} />;
-            case ApplicationResponseStatusEnum.Cancelled:
-                return <Chip icon={<CancelOutlined sx={iconStyle} />} label="İptal Edildi" size="small" sx={{ bgcolor: `${COLORS.cancelled}15`, color: COLORS.cancelled, fontWeight: 600, borderRadius: "6px", "& .MuiChip-icon": { color: COLORS.cancelled, ml: 0.5 } }} />;
-            case ApplicationResponseStatusEnum.New:
-            case ApplicationResponseStatusEnum.InReview:
-            default:
-                return <Chip icon={<HourglassEmptyOutlined sx={iconStyle} />} label="Bekliyor" size="small" sx={{ bgcolor: `${COLORS.pending}15`, color: COLORS.pending, fontWeight: 600, borderRadius: "6px", "& .MuiChip-icon": { color: COLORS.pending, ml: 0.5 } }} />;
-        }
+        return <StatusChip status={status as any} />;
     };
 
     return (
@@ -257,8 +246,8 @@ export default function DashboardPage() {
                                         </PieChart>
                                     </ResponsiveContainer>
                                 ) : (
-                                    <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100%", color: "text.disabled" }}>
-                                        <Typography>Yeterli veri bulunmuyor</Typography>
+                                    <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100%", color: "text.secondary" }}>
+                                        <Typography sx={{ fontWeight: 500 }}>Yeterli veri bulunmuyor</Typography>
                                     </Box>
                                 )}
                             </Box>
@@ -320,8 +309,8 @@ export default function DashboardPage() {
                                             ))
                                         ) : (
                                             <TableRow>
-                                                <TableCell colSpan={4} align="center" sx={{ py: 4, color: "text.disabled" }}>
-                                                    <Typography variant="body1">Kayıtlı başvuru bulunmamaktadır.</Typography>
+                                                <TableCell colSpan={4} align="center" sx={{ py: 4, color: "text.secondary" }}>
+                                                    <Typography variant="body1" sx={{ fontWeight: 500 }}>Kayıtlı başvuru bulunmamaktadır.</Typography>
                                                 </TableCell>
                                             </TableRow>
                                         )}

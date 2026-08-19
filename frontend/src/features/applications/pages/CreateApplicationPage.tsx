@@ -202,13 +202,10 @@ export default function CreateApplicationPage() {
                 type="submit"
                 variant="contained"
                 disabled={isSaving || formTypesLoading}
-                sx={{ px: 4, minWidth: 150 }}
+                startIcon={isSaving ? <CircularProgress size={20} color="inherit" /> : <PostAddOutlinedIcon />}
+                sx={{ px: 4, minWidth: 200 }}
               >
-                {isSaving ? (
-                  <CircularProgress size={24} color="inherit" />
-                ) : (
-                  "Başvuruyu Oluştur"
-                )}
+                Başvuruyu Oluştur
               </Button>
             </Box>
 

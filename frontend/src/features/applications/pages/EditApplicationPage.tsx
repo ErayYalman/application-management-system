@@ -253,13 +253,10 @@ export default function EditApplicationPage() {
                   type="submit"
                   variant="contained"
                   disabled={isSaving || formTypesLoading}
+                  startIcon={isSaving ? <CircularProgress size={20} color="inherit" /> : <EditOutlinedIcon />}
                   sx={{ px: 4, minWidth: 200 }}
                 >
-                  {isSaving ? (
-                    <CircularProgress size={24} color="inherit" />
-                  ) : (
-                    "Değişiklikleri Kaydet"
-                  )}
+                  Değişiklikleri Kaydet
                 </Button>
               )}
             </Box>

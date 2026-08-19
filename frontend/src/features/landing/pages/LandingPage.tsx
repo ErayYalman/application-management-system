@@ -109,6 +109,7 @@ export default function LandingPage() {
                     <IconButton 
                         onClick={toggleTheme} 
                         size="small"
+                        aria-label="Tema değiştir"
                         sx={{ 
                             color: "text.secondary",
                             "& :hover": { color: "text.primary" }

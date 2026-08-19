@@ -135,6 +135,7 @@ export default function MyApplicationsPage() {
         <Tooltip title="Görüntüle">
           <IconButton
             size="small"
+            aria-label="Başvuruyu Görüntüle"
             onClick={(e) => {
               e.stopPropagation();
               navigate(`/applications/${params.row.id}`);

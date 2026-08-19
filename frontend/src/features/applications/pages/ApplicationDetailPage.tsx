@@ -326,7 +326,7 @@ export default function ApplicationDetailPage() {
               <Box sx={{ display: "flex", justifyContent: "center", py: 3 }}>
                 <CircularProgress size={30} />
               </Box>
-            ) : attachments.length === 0 ? (
+            ) : !Array.isArray(attachments) || attachments.length === 0 ? (
               <Box sx={{ textAlign: "center", py: 4, px: 2, backgroundColor: "background.default", borderRadius: "8px" }}>
                 <InboxOutlinedIcon sx={{ fontSize: 48, color: "text.disabled", mb: 1 }} />
                 <Typography variant="body1" color="text.secondary">
@@ -364,6 +364,7 @@ export default function ApplicationDetailPage() {
                         <IconButton
                           size="small"
                           color="primary"
+                          aria-label="Dosyayı İndir"
                           onClick={async () => {
                             try {
                               const response = await downloadAttachment(attachment.id!);
@@ -389,6 +390,7 @@ export default function ApplicationDetailPage() {
                           <IconButton
                             size="small"
                             color="error"
+                            aria-label="Dosyayı Sil"
                             disabled={deleteAttachmentMutation.isPending}
                             onClick={() => setConfirmDialog({ open: true, type: "delete_attachment", attachmentId: attachment.id })}
                           >

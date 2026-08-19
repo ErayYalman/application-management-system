@@ -80,7 +80,9 @@ export default function FormTypesTable({
         <Chip
           label={params.row.active ? "Aktif" : "Pasif"}
           color={params.row.active ? "success" : "default"}
+          variant={params.row.active ? "outlined" : "filled"}
           size="small"
+          sx={{ fontWeight: 600, color: params.row.active ? "success.dark" : "inherit" }}
         />
       ),
     },
@@ -133,6 +135,7 @@ export default function FormTypesTable({
           <Tooltip title="Düzenle">
             <IconButton
               size="small"
+              aria-label="Form Türünü Düzenle"
               onClick={(e) => {
                 e.stopPropagation();
                 onEdit(String(params.row.id));
