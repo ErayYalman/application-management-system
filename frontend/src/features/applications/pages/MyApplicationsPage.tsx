@@ -207,7 +207,7 @@ export default function MyApplicationsPage() {
           mb: 4,
           backgroundColor: "background.paper",
           p: 2.5,
-          borderRadius: 2,
+          borderRadius: "8px",
           boxShadow: theme.palette.mode === "light" ? "0 4px 12px rgba(0,0,0,0.03)" : "none",
           border: `1px solid ${theme.palette.divider}`,
         }}
@@ -379,7 +379,7 @@ export default function MyApplicationsPage() {
           sx={{
             border: "none",
             backgroundColor: theme.palette.mode === "light" ? "#fff" : "background.paper",
-            borderRadius: 3,
+            borderRadius: "8px",
             boxShadow: theme.palette.mode === "light" ? "0 4px 12px rgba(0,0,0,0.03)" : "none",
             px: 2,
             pb: 2,

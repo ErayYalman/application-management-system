@@ -99,7 +99,7 @@ export default function ApplicationDetailPage() {
   if (isError || !application) {
     return (
       <Box sx={{ maxWidth: 800, mx: "auto", pt: 4 }}>
-        <Alert severity="error" sx={{ borderRadius: 2 }}>
+        <Alert severity="error" sx={{ borderRadius: "8px" }}>
           Başvuru bulunamadı.
         </Alert>
       </Box>
@@ -204,7 +204,7 @@ export default function ApplicationDetailPage() {
           severity="error"
           sx={{
             mb: 4,
-            borderRadius: 3,
+            borderRadius: "8px",
             border: `1px solid ${theme.palette.error.main}`,
             backgroundColor: theme.palette.mode === "light" ? theme.palette.error.light + "20" : "transparent",
             "& .MuiAlert-message": { width: "100%", textAlign: "center", fontWeight: 600, fontSize: "1.1rem" }
@@ -236,7 +236,7 @@ export default function ApplicationDetailPage() {
       {/* MAIN CARD */}
       <Card
         sx={{
-          borderRadius: 3,
+          borderRadius: "8px",
           border: `1px solid ${theme.palette.divider}`,
           boxShadow: theme.palette.mode === "light" ? "0 4px 12px rgba(0,0,0,0.03)" : "none",
           backgroundColor: "background.paper",
@@ -254,7 +254,7 @@ export default function ApplicationDetailPage() {
             {application.description || "Açıklama bulunmamaktadır."}
           </Typography>
 
-          <Box sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 3, p: 3, backgroundColor: "background.default", borderRadius: 2 }}>
+          <Box sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 3, p: 3, backgroundColor: "background.default", borderRadius: "8px" }}>
             <Box>
               <Typography variant="caption" color="text.secondary" sx={{ textTransform: "uppercase", fontWeight: 600 }}>
                 Başvuru Türü
@@ -294,7 +294,7 @@ export default function ApplicationDetailPage() {
                 onClick={() => !uploadAttachmentMutation.isPending && fileInputRef.current?.click()}
                 sx={{
                   border: `2px dashed ${theme.palette.divider}`,
-                  borderRadius: 2,
+                  borderRadius: "8px",
                   p: 3,
                   mb: 3,
                   textAlign: "center",
@@ -327,7 +327,7 @@ export default function ApplicationDetailPage() {
                 <CircularProgress size={30} />
               </Box>
             ) : attachments.length === 0 ? (
-              <Box sx={{ textAlign: "center", py: 4, px: 2, backgroundColor: "background.default", borderRadius: 2 }}>
+              <Box sx={{ textAlign: "center", py: 4, px: 2, backgroundColor: "background.default", borderRadius: "8px" }}>
                 <InboxOutlinedIcon sx={{ fontSize: 48, color: "text.disabled", mb: 1 }} />
                 <Typography variant="body1" color="text.secondary">
                   Henüz dosya yüklenmedi.
@@ -343,7 +343,7 @@ export default function ApplicationDetailPage() {
                       alignItems: "center",
                       justifyContent: "space-between",
                       p: 2,
-                      borderRadius: 2,
+                      borderRadius: "8px",
                       border: `1px solid ${theme.palette.divider}`,
                       backgroundColor: "background.default",
                     }}

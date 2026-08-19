@@ -106,7 +106,7 @@ export default function EditApplicationPage() {
   if (applicationError || !application) {
     return (
       <Box sx={{ maxWidth: 800, mx: "auto", pt: 4 }}>
-        <Alert severity="error" sx={{ borderRadius: 2 }}>
+        <Alert severity="error" sx={{ borderRadius: "8px" }}>
           Başvuru bilgileri yüklenemedi. Lütfen sayfayı yenileyin.
         </Alert>
       </Box>
@@ -127,26 +127,26 @@ export default function EditApplicationPage() {
       </Box>
 
       {isReadOnly && (
-        <Alert severity="warning" sx={{ mb: 3, borderRadius: 2 }}>
+        <Alert severity="warning" sx={{ mb: 3, borderRadius: "8px" }}>
           Bu başvuru <strong>{application.status}</strong> durumunda olduğu için düzenlenemez. Sadece görüntüleyebilirsiniz.
         </Alert>
       )}
 
       {formTypesError && (
-        <Alert severity="error" sx={{ mb: 3, borderRadius: 2 }}>
+        <Alert severity="error" sx={{ mb: 3, borderRadius: "8px" }}>
           Başvuru türleri yüklenemedi. Lütfen sayfayı yenileyin.
         </Alert>
       )}
 
       {updateMutation.isError && (
-        <Alert severity="error" sx={{ mb: 3, borderRadius: 2 }}>
+        <Alert severity="error" sx={{ mb: 3, borderRadius: "8px" }}>
           Başvuru güncellenemedi. Lütfen bilgileri kontrol edin ve tekrar deneyin.
         </Alert>
       )}
 
       <Card
         sx={{
-          borderRadius: 3,
+          borderRadius: "8px",
           border: `1px solid ${theme.palette.divider}`,
           boxShadow: theme.palette.mode === "light" ? "0 4px 12px rgba(0,0,0,0.03)" : "none",
           backgroundColor: "background.paper",

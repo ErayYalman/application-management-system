@@ -99,7 +99,7 @@ export default function CreateApplicationPage() {
 
       <Card
         sx={{
-          borderRadius: 3,
+          borderRadius: "8px",
           border: `1px solid ${theme.palette.divider}`,
           boxShadow: theme.palette.mode === "light" ? "0 4px 12px rgba(0,0,0,0.03)" : "none",
           backgroundColor: "background.paper",

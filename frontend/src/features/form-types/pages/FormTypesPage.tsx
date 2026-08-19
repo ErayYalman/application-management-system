@@ -66,7 +66,7 @@ export default function FormTypesPage() {
   if (isError) {
     return (
       <Box sx={{ maxWidth: 1200, mx: "auto", pt: 4 }}>
-        <Alert severity="error" sx={{ borderRadius: 2 }}>
+        <Alert severity="error" sx={{ borderRadius: "8px" }}>
           Form türleri yüklenemedi.
         </Alert>
       </Box>

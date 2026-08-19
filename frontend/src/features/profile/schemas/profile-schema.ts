@@ -4,14 +4,14 @@ export const profileSchema = z.object({
   name: z
     .string()
     .trim()
-    .min(1, "Ad zorunludur.")
-    .max(100, "Ad en fazla 100 karakter olabilir."),
+    .min(2, "Ad en az 2 karakter olmalıdır.")
+    .max(50, "Ad en fazla 50 karakter olabilir."),
 
   surname: z
     .string()
     .trim()
-    .min(1, "Soyad zorunludur.")
-    .max(100, "Soyad en fazla 100 karakter olabilir."),
+    .min(2, "Soyad en az 2 karakter olmalıdır.")
+    .max(50, "Soyad en fazla 50 karakter olabilir."),
 });
 
 export type ProfileFormData =

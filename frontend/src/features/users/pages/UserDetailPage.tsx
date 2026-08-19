@@ -155,7 +155,7 @@ export default function UserDetailPage() {
     if (isError || !user) {
         return (
             <Box sx={{ maxWidth: 800, mx: "auto", pt: 4 }}>
-                <Alert severity="error" sx={{ borderRadius: 2 }}>
+                <Alert severity="error" sx={{ borderRadius: "8px" }}>
                     Kullanıcı bulunamadı.
                 </Alert>
             </Box>
@@ -196,7 +196,7 @@ export default function UserDetailPage() {
 
             <Card
                 sx={{
-                    borderRadius: 3,
+                    borderRadius: "8px",
                     border: `1px solid ${theme.palette.divider}`,
                     boxShadow: theme.palette.mode === "light" ? "0 4px 12px rgba(0,0,0,0.03)" : "none",
                     backgroundColor: "background.paper",
