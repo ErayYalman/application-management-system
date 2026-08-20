@@ -5,32 +5,9 @@
 
 </div>
 
-# 🏢 APPLICATION MANAGEMENT SYSTEM
+# 🏢 Application Management System
 
-> Enterprise application workflow platform built with Spring Boot + React + PostgreSQL + Docker
-
-<div align="center">
-
-[Architecture](#system-architecture) · [API Docs](#api-endpoints) · [Screenshots](#screenshots) · [Installation](#installation)
-
-</div>
-
----
-
-<div align="center">
-  <img src="docs/screenshots/dashboard.png" alt="Dashboard" width="800"/>
-</div>
-
----
-
-<a id="project-description"></a>
-## 🎯 Project Description
-
-Leave, training, advance, material, and assignment requests within organizations are often managed via scattered email threads, Excel spreadsheets, or verbal communication. This traditional approach lacks centralized tracking and makes it difficult to maintain a clear audit trail.
-
-The **Application Management System** is a web-based platform where personnel can submit and track applications, while administrators can review, approve or reject, and generate reports on them. It provides a workflow supporting various form types, a status lifecycle, file attachments, and an analytics dashboard.
-
----
+> Enterprise application and form management platform with role-based workflow, JWT security, and full-stack Docker deployment.
 
 <div align="center">
 
@@ -47,47 +24,143 @@ The **Application Management System** is a web-based platform where personnel ca
 ![Vite](https://img.shields.io/badge/Vite-8.2.0-646CFF?style=for-the-badge&logo=vite&logoColor=white)
 ![MUI](https://img.shields.io/badge/MUI-9.3.1-007FFF?style=for-the-badge&logo=mui&logoColor=white)
 
+[Architecture](#system-architecture) · [Features](#features) · [API](#api-endpoints) · [Database](#database) · [Docker](#docker--deployment) · [Screenshots](#screenshots) · [Installation](#installation)
+
 </div>
 
 ---
 
-<a id="what-does-this-system-solve"></a>
-## 💡 What does this system solve?
+<div align="center">
+  <img src="docs/screenshots/home-light.png" alt="Home Light" width="800"/>
+</div>
 
-- Replaces scattered email/Excel requests with a centralized digital workflow.
-- Provides a clear audit trail with an explicit approval lifecycle (`NEW` → `IN_REVIEW` → `APPROVED` / `REJECTED`).
-- Secures application data using role-based JWT authentication.
-- Automates reporting with dashboard KPIs and analytical summaries.
-- Manages file attachments per application.
+---
+
+## 📖 Table of Contents
+- [🎯 Project Description](#project-description)
+- [💡 Why This Project?](#why-this-project)
+- [✨ Features](#features)
+- [🔭 System at a Glance](#system-at-a-glance)
+- [🏗️ System Architecture](#system-architecture)
+- [🔄 Application Workflow](#application-workflow)
+- [🔐 Security Architecture](#security-architecture)
+- [📊 Dashboard & Reporting](#dashboard--reporting)
+- [🎨 UI / UX Showcase](#ui--ux-showcase)
+- [🛠️ Technologies](#technologies)
+- [🧠 Key Technical Decisions](#key-technical-decisions)
+- [📜 Business Rules](#business-rules)
+- [🗄️ Database](#database)
+- [🔌 API Contract & OpenAPI](#api-contract--openapi)
+- [🌐 API Endpoints](#api-endpoints)
+- [📂 Project Structure](#project-structure)
+- [🐳 Docker & Deployment](#docker--deployment)
+- [🧪 Testing & Quality](#testing--quality)
+- [🚀 Installation](#installation)
+- [⚙️ Environment Variables](#environment-variables)
+- [📸 Screenshots](#screenshots)
+- [🗺️ Roadmap](#roadmap)
+- [🔮 Future Improvements](#future-improvements)
+- [ℹ️ Project Information](#project-information)
+- [📄 License](#license)
+
+---
+
+<a id="project-description"></a>
+## 🎯 Project Description
+
+Leave, training, advance, material, and assignment requests within organizations are often managed via scattered email threads, Excel spreadsheets, or verbal communication. This traditional approach lacks centralized tracking and makes it difficult to maintain a clear audit trail.
+
+The **Application Management System** is a comprehensive web-based platform where personnel can submit and track applications, while administrators can review, approve or reject, and generate reports on them.
+
+The system supports two primary roles: `PERSONNEL` (applicants) and `ADMIN` (reviewers/managers). It provides a full-featured workflow supporting 5 seeded form types, a 5-status lifecycle, file attachments, and a comprehensive analytics dashboard.
+
+---
+
+<a id="why-this-project"></a>
+## 💡 Why This Project?
+
+| 🔴 Problem | 🟢 Solution |
+|---|---|
+| Manual email/verbal requests | Centralized digital application workflow |
+| Excel/spreadsheet tracking | Searchable, filterable, paginated data grids |
+| Unclear approval status | Explicit status workflow (`NEW` → `IN_REVIEW` → `APPROVED` / `REJECTED`) |
+| Incomplete request history | Timestamped records and explicit applicant ownership (dedicated audit logging subsystem is planned) |
+| Scattered file attachments | Per-application file upload, download, and management |
+| Unauthorized access risks | JWT authentication + role-based authorization |
+| Manual report compilation | Automated dashboard KPIs and filtered reports |
+| Inconsistent deployment | Containerized Docker Compose stack with Nginx reverse proxy |
 
 ---
 
 <a id="features"></a>
-## ✨ Key Features
+## ✨ Features
 
-### 👤 Personnel
-- Registration with email validation and custom password rules
-- Login with access and refresh token pair
+### 👤 Personnel Features
+- Registration with email validation and custom password rules (`@ValidPassword`)
+- Login → access token + refresh token pair
+- **Session restoration:** On page reload, existing access token in `sessionStorage` is used to restore user state via `GET /users/me`
+- **Automatic access token renewal:** On 401 response, Axios interceptor transparently refreshes tokens via `POST /auth/refresh-token` with rotation (old token invalidated, new pair issued)
 - Create applications (title, description, form type selection)
-- View own applications with pagination, sorting, and filtering
-- Edit, cancel, or delete applications (based on workflow rules)
+- View own applications — paginated, sorted, filtered (Specification pattern)
+- View application detail with attachments
+- Edit applications (only while in `NEW` status)
+- Cancel applications (from `NEW` or `IN_REVIEW` status)
+- Delete applications (only while in `NEW` status)
 - Upload, download, and delete file attachments
-- Profile management
+- Profile view and update
+- Logout with server-side refresh token revocation
 
-### 🛡️ Admin
-- Dashboard with KPI cards and recent applications
-- View all applications across the organization
-- Advance applications through the review workflow (`IN_REVIEW`, `APPROVED`, `REJECTED`)
-- User management (list, search, activate/deactivate, update)
-- Form type management
-- Filtered reports and analytics
+### 🛡️ Admin Features
+- Dashboard with KPI cards: total, pending, approved, rejected, cancelled, today's count
+- Latest applications list on dashboard
+- View all applications — paginated, sorted, filtered
+- Move application to review (`NEW` → `IN_REVIEW`)
+- Approve application (`IN_REVIEW` → `APPROVED`)
+- Reject application (`IN_REVIEW` → `REJECTED`)
+- User management — list, search, view detail
+- Activate / deactivate users
+- Update user details
+- Form type CRUD — create, update, activate/deactivate
+- Reports with date range, status, and form type filters
+- Status distribution and form type distribution analytics
+
+### 🔐 Security Features
+- JWT access tokens + refresh tokens
+- Refresh token hashed with SHA-256, stored in database
+- Refresh token rotation — old token deleted on use, new pair issued
+- BCrypt password hashing (cost factor 12)
+- Stateless sessions (`SessionCreationPolicy.STATELESS`)
+- Method-level security via `@PreAuthorize`
+- Custom `JwtAuthenticationEntryPoint` (structured 401 JSON)
+- Custom `JwtAccessDeniedHandler` (structured 403 JSON)
+- Token stored in `sessionStorage` (cleared on tab close)
+- Scheduled expired/revoked token cleanup (daily cron)
+- CORS configuration for development and Docker environments
+- Custom `@ValidPassword` constraint annotation + validator
+
+### 🛠️ Platform Features
+- Global exception handling (`@RestControllerAdvice` + typed `ErrorCode` enum with 20+ entries)
+- Bean Validation (`jakarta.validation`)
+- Flyway schema migrations (7 versions, source of truth for schema)
+- Hibernate `validate` mode (schema not auto-generated)
+- MapStruct DTO mapping (5 mappers)
+- Specification pattern for dynamic, type-safe search
+- OpenAPI documentation with Swagger UI
+- OpenAPI-generated TypeScript Axios client
+- Spring Boot Actuator
+- Docker Compose (3 services, healthcheck, 2 persistent volumes)
+- Nginx reverse proxy (SPA fallback + API/Swagger proxy + static asset caching)
+- Multi-stage Dockerfiles (Node 22 build + Nginx runtime, Maven + Temurin 21 runtime)
+- Responsive UI with Material UI component library
+- Dark / Light mode (ThemeContext with custom design tokens)
+- Inter font family via `@fontsource/inter`
+- Landing page
+- Automatic admin user initialization on first startup (`AdminInitializer`)
 
 ---
 
-<a id="system-architecture"></a>
-## 🏗️ System Architecture
-
-### 🔭 System at a Glance
+<a id="system-at-a-glance"></a>
+## 🔭 System at a Glance
 
 ```mermaid
 flowchart TD
@@ -115,14 +188,36 @@ flowchart TD
     class DB,Storage data
 ```
 
+> All three services run as Docker containers orchestrated via Docker Compose.
+
+---
+
+<a id="system-architecture"></a>
+## 🏗️ System Architecture
+
 <div align="center">
   <img src="docs/architecture/system-design-whiteboard.png" alt="System Architecture" width="100%"/>
 </div>
+
+> System design whiteboard showing the overall architecture, entity relationships, and request/response flow. ([Source Excalidraw file](docs/architecture/system-design.excalidraw))
 
 ---
 
 <a id="application-workflow"></a>
 ## 🔄 Application Workflow
+
+**Verified transitions** (from `ApplicationValidator` + `ApplicationFormServiceImpl`):
+
+```text
+NEW        → IN_REVIEW   (Admin: moveToReview)
+NEW        → CANCELLED   (Personnel: cancel)
+IN_REVIEW  → APPROVED    (Admin: approve)
+IN_REVIEW  → REJECTED    (Admin: reject)
+IN_REVIEW  → CANCELLED   (Personnel: cancel)
+APPROVED   → (terminal)
+REJECTED   → (terminal)
+CANCELLED  → (terminal)
+```
 
 ```mermaid
 stateDiagram-v2
@@ -154,12 +249,18 @@ stateDiagram-v2
 ---
 
 <a id="security-architecture"></a>
-## 🔐 Security
+## 🔐 Security Architecture
 
-- Spring Security stateless filter chain with `JwtAuthenticationFilter`.
-- JWT via jjwt library with access and refresh tokens.
-- Refresh token rotation (old token deleted on use, new pair issued).
-- Method-level security via `@PreAuthorize`.
+- Spring Security filter chain configuration (stateless)
+- `JwtAuthenticationFilter` on every request
+- JWT via jjwt library (access + refresh tokens)
+- Refresh token: SHA-256 hashed, stored in DB, deleted on use (rotation)
+- BCrypt password encoding (cost factor 12)
+- `@EnableMethodSecurity` + `@PreAuthorize` on controller endpoints
+- Custom 401/403 JSON error handlers
+- Auth endpoints public, all others require authentication
+- `sessionStorage` for client-side token storage (not `localStorage`)
+- Scheduled token cleanup (`RefreshTokenCleanupScheduler`, cron `0 30 3 * * *`)
 
 ```mermaid
 sequenceDiagram
@@ -170,9 +271,15 @@ sequenceDiagram
 
     rect rgb(224, 242, 254)
     Client->>API: POST /auth/login {email, password}
-    API->>DB: Validate credentials & create refresh token (SHA-256 hash)
+    API->>DB: Validate credentials (BCrypt)
+    API->>DB: Create refresh token (SHA-256 hash)
     API-->>Client: {accessToken, refreshToken, user}
     Note over Client: Tokens stored in sessionStorage
+    end
+
+    rect rgb(220, 252, 231)
+    Client->>API: GET /api/... (Bearer accessToken)
+    API-->>Client: 200 OK
     end
 
     Note over Client,API: Access token expires
@@ -184,8 +291,11 @@ sequenceDiagram
 
     rect rgb(237, 233, 254)
     Client->>API: POST /auth/refresh-token {refreshToken}
-    API->>DB: Validate token hash, delete old, create new
+    API->>DB: Validate token hash + check expiry
+    API->>DB: Delete old refresh token
+    API->>DB: Create new refresh token
     API-->>Client: {newAccessToken, newRefreshToken}
+    Note over Client: Old tokens replaced in sessionStorage
     end
 
     Client->>API: Retry original request
@@ -193,14 +303,30 @@ sequenceDiagram
 ```
 
 > [!IMPORTANT]
-> **Token Storage Security:** SessionStorage is preferred over LocalStorage to ensure tokens are not persisted after the browser tab is closed. While this limits token persistence duration, it is not a standalone defense against XSS attacks.
+> **Session Restoration vs. Automatic Token Refresh**
+> - **Session Restoration** — On page reload, the app checks `sessionStorage` for an existing access token and calls `GET /users/me` to restore the user profile without re-entering credentials.
+> - **Automatic Token Refresh** — When an API call receives a 401 response, the Axios interceptor transparently calls `/auth/refresh-token`, replaces both tokens in `sessionStorage` (rotation), and retries the failed request. Concurrent requests are queued during refresh.
 
 ---
 
 <a id="dashboard--reporting"></a>
 ## 📊 Dashboard & Reporting
 
-The dashboard and reporting modules provide dashboard metrics and analytical summaries.
+The dashboard and reporting modules provide real-time metrics and analytics using **Recharts** (pie charts, bar charts).
+
+**📈 Dashboard KPIs** (from `DashboardResponse`):
+- Total applications
+- Pending applications (`NEW` + `IN_REVIEW`)
+- Approved / Rejected / Cancelled counts
+- Today's applications
+- Latest applications list
+
+**📋 Reports** (from `ApplicationReportResponse`):
+- Date range filter (start, end)
+- Status filter
+- Form type filter
+- KPI breakdown: total, new, inReview, approved, rejected, cancelled
+- Form type distribution (`applicationsByFormType`)
 
 <div align="center">
   <img src="docs/screenshots/dashboard.png" width="48%" style="margin-right: 1%;"/>
@@ -210,78 +336,242 @@ The dashboard and reporting modules provide dashboard metrics and analytical sum
 ---
 
 <a id="ui--ux-showcase"></a>
-## 🎨 UI Screenshots
+## 🎨 UI / UX Showcase
+
+The frontend leverages the robust **Material UI v9** design system, utilizing a comprehensive custom theme (`theme.ts` — 290 lines) that defines specific design tokens for both light and dark palettes.
+
+**Highlights:**
+- 🧩 Responsive `AppLayout` with collapsible `AppSidebar` + `AppHeader`
+- 🌓 Seamless Dark/Light mode toggle via `ThemeContext`
+- ✒️ Crisp typography powered by `@fontsource/inter`
 
 | ☀️ Light Mode | 🌙 Dark Mode |
 |---|---|
 | ![Home Light](docs/screenshots/home-light.png) | ![Home Dark](docs/screenshots/home-dark.png) |
 
-| 🏠 Landing | 🔐 Authentication |
-|---|---|
-| <img src="docs/screenshots/landing.png" width="400"/> | <img src="docs/screenshots/login.png" width="400"/><br/><img src="docs/screenshots/register.png" width="400"/> |
+---
 
-| 📝 Applications | 🛠️ Administration |
-|---|---|
-| <img src="docs/screenshots/my-applications.png" width="400"/><br/><img src="docs/screenshots/create-application.png" width="400"/><br/><img src="docs/screenshots/application-detail.png" width="400"/> | <img src="docs/screenshots/all-applications.png" width="400"/><br/><img src="docs/screenshots/users.png" width="400"/><br/><img src="docs/screenshots/form-types.png" width="400"/> |
+<a id="technologies"></a>
+## 🛠️ Technologies
 
-| 👤 Profile | |
-|---|---|
-| <img src="docs/screenshots/profile.png" width="400"/> | |
+### ⚙️ Backend
+| Technology | Version | Purpose |
+|---|---|---|
+| **Java** | 21 | Runtime platform |
+| **Spring Boot** | 3.5.16 | Application framework |
+| **Spring Security** | Managed | Authentication & authorization |
+| **Spring Data JPA** | Managed | Data access layer |
+| **Hibernate** | Managed | ORM — `validate` mode |
+| **PostgreSQL** | 16 | Relational database |
+| **Flyway** | Managed | Database schema migration |
+| **JWT (jjwt)** | 0.12.7 | Token-based authentication |
+| **MapStruct** | 1.6.3 | Compile-time DTO ↔ Entity mapping |
+| **Lombok** | 1.18.46 | Boilerplate reduction |
+| **SpringDoc OpenAPI** | 2.8.9 | API documentation & Swagger UI |
+| **Bean Validation** | Managed | Request validation |
+| **Spring Boot Actuator** | Managed | Application monitoring endpoints |
+| **Maven** | Wrapper | Build & dependency management |
+
+### ⚛️ Frontend
+| Technology | Version | Purpose |
+|---|---|---|
+| **React** | 19 | UI library |
+| **TypeScript** | 6 | Type-safe development |
+| **Vite** | 8 | Build tool & dev server |
+| **Material UI (MUI)** | 9 | Component library |
+| **MUI X Data Grid** | 9 | Advanced data tables with sorting, filtering, pagination |
+| **React Router** | 7 | Client-side routing |
+| **TanStack Query** | 5 | Server state management & caching |
+| **Axios** | 1.19 | HTTP client with interceptors |
+| **React Hook Form** | 7 | Form state management |
+| **Zod** | 4 | Schema validation |
+| **Recharts** | 3 | Data visualization (charts) |
+| **Emotion** | 11 | CSS-in-JS styling engine (MUI) |
+| **Inter (Fontsource)** | 5 | Typography |
+
+### ☁️ Infrastructure
+| Technology | Version | Purpose |
+|---|---|---|
+| **Docker** | — | Containerization |
+| **Docker Compose** | — | Multi-container orchestration |
+| **Nginx** | 1.27-alpine | Reverse proxy, SPA serving, static caching |
+| **Node** | 22-alpine | Frontend build stage |
+| **Maven** | 3.9 + Temurin 21 | Backend build stage |
+| **Eclipse Temurin** | 21-jre-alpine | Backend runtime |
 
 ---
 
 <a id="key-technical-decisions"></a>
-## 🧠 Technical Decisions
+## 🧠 Key Technical Decisions
 
-- **DTO + MapStruct:** Entities are never exposed to the API directly; compile-time mappers prevent runtime reflection overhead.
-- **Specification Pattern:** Dynamic, type-safe, composable queries are used instead of raw SQL for filtering and searching.
-- **Stateless Authentication:** Uses JWT with refresh token rotation. Refresh tokens are SHA-256 hashed in the database to mitigate token theft risks.
-- **Flyway Migrations:** Flyway serves as the single source of truth for the database schema, with Hibernate configured in `validate` mode.
-- **Global Exception Handling:** Provides consistent, machine-readable JSON error responses across all API endpoints using `@RestControllerAdvice`.
-- **API Client Generation:** The TypeScript Axios client is generated from the OpenAPI specification, ensuring type safety between backend and frontend.
-- **Feature-based Architecture:** The frontend uses a domain-driven directory structure (e.g., `features/applications/`) grouping related components, hooks, and schemas.
-- **Docker + Nginx Proxy:** Single-origin deployment with SPA fallback and API reverse proxying to avoid CORS issues in production.
+1. **DTO + MapStruct** — Entities never exposed to API; compile-time mappers prevent runtime reflection overhead.
+2. **Specification Pattern** — `ApplicationFormSpecification`, `UserSpecification` → dynamic, type-safe, composable queries without raw SQL.
+3. **JWT + Refresh Token Rotation** — Stateless auth without server-side sessions. Old refresh tokens deleted on use → mitigates token theft.
+4. **SHA-256 Token Hashing** — Raw refresh tokens never stored in database; only hashes persisted.
+5. **Flyway + Hibernate Validate** — Flyway migrations are the single source of truth for schema. Hibernate only validates entity mapping against existing schema.
+6. **`sessionStorage` over `localStorage`** — Tokens cleared automatically on tab/browser close → reduces attack surface for XSS token theft.
+7. **Global Exception Handling** — `@RestControllerAdvice` + typed `ErrorCode` enum → consistent, machine-readable error responses across all endpoints.
+8. **API Client Generation** — The OpenAPI-generated TypeScript Axios client handles the low-level API contract, while frontend service wrappers and hooks provide application-level abstraction.
+9. **Docker + Nginx Reverse Proxy** — Single-origin deployment. SPA fallback + `/api/*` proxy → no CORS in production.
+10. **Feature-based Frontend Architecture** — Domain-driven directory structure (`features/applications/`, `features/auth/`, etc.) with co-located API, hooks, pages, schemas.
+11. **TanStack Query** — Server-state caching, background refetching, mutation-based cache invalidation. No manual state management for API data.
+12. **Persistent Docker Volumes** — `postgres_data` + `app_storage` survive container rebuilds.
+13. **Admin Auto-Initialization** — `CommandLineRunner` creates admin user from environment variables on first startup.
+14. **Scheduled Token Cleanup** — Daily cron job purges expired/revoked refresh tokens from the database.
+
+---
+
+<a id="business-rules"></a>
+## 📜 Business Rules
+
+| ⚖️ Rule | 🔒 Enforced By |
+|---|---|
+| Personnel can view only own applications | `ApplicationValidator.validateAccess()` |
+| Admin can view all applications | `@PreAuthorize("hasRole('ADMIN')")` on `getAllApplications` |
+| Only `NEW` applications can be edited | `ApplicationValidator.validateUpdatable()` |
+| Only `NEW` applications can be deleted | `ApplicationValidator.validateDeletable()` |
+| Only `NEW` applications can be moved to review | `ApplicationValidator.validateReviewable()` |
+| Only `IN_REVIEW` applications can be approved | `ApplicationValidator.validateApprovable()` |
+| Only `IN_REVIEW` applications can be rejected | `ApplicationValidator.validateRejectable()` |
+| Cancel allowed from `NEW` or `IN_REVIEW` | `ApplicationValidator.validateCancellable()` |
+| `APPROVED`, `REJECTED`, `CANCELLED` are terminal | `ApplicationStatusValidator` ALLOWED_TRANSITIONS → empty set |
+| Inactive form types cannot be used for new applications | `ApplicationFormServiceImpl.create()` → `InactiveFormTypeException` |
+| Inactive form types cannot be used when editing | `ApplicationFormServiceImpl.updateApplicationForm()` → `InactiveFormTypeException` |
+| Duplicate email registration blocked | DB unique constraint `uq_users_email` + `ErrorCode.EMAIL_ALREADY_EXISTS` |
+| Duplicate form type name blocked | DB unique constraint `uq_form_types_name` + `ErrorCode.FORM_TYPE_ALREADY_EXISTS` |
+| Already active user cannot be activated again | `UserValidator.validateActivation()` |
+| Already inactive user cannot be deactivated again | `UserValidator.validateDeactivation()` |
+| Refresh token deleted on use (rotation) | `RefreshTokenServiceImpl` — delete old, create new |
+| Expired / revoked tokens rejected | `RefreshTokenServiceImpl.validate()` |
+| File type and size restrictions on upload | `ErrorCode.INVALID_FILE_TYPE`, `ErrorCode.FILE_SIZE_EXCEEDED` |
 
 ---
 
 <a id="database"></a>
 ## 🗄️ Database
 
-| Table | Purpose |
-|---|---|
-| `users` | User accounts |
-| `form_types` | Application categories |
-| `application_forms` | Submitted applications |
-| `attachments` | Uploaded files |
-| `refresh_tokens` | JWT refresh tokens |
+**5 Tables (Flyway V1–V7):**
+
+| Table | Migration | Purpose | Key Constraints |
+|---|---|---|---|
+| `users` | V1 | User accounts | PK UUID, UNIQUE email, CHECK role IN ('ADMIN','PERSONNEL'), `is_active` |
+| `form_types` | V2 | Application categories | PK UUID, UNIQUE name, `is_active` |
+| `application_forms` | V3 | Submitted applications | FK → users (`RESTRICT`), FK → form_types (`RESTRICT`), CHECK status |
+| `attachments` | V4 | Uploaded files | FK → application_forms (`CASCADE`) |
+| `refresh_tokens` | V7 | JWT refresh tokens | FK → users (`CASCADE`), UNIQUE token_hash, `revoked`, `expires_at` |
+
+**Indexes (V6 + V7):**
+- `idx_application_forms_user_id`
+- `idx_application_forms_form_type_id`
+- `idx_application_forms_status`
+- `idx_attachments_application_form_id`
+- `idx_refresh_tokens_user_id`
+- `idx_refresh_tokens_expires_at`
+
+**Seeded data (V5):** 5 default form types — İzin, Eğitim, Avans, Malzeme, Görev
+
+> [!TIP]
+> **Design Decisions:**
+> - UUID primary keys (`gen_random_uuid()`)
+> - `TIMESTAMPTZ` for all timestamps
+> - Soft-active state on users and form_types via `is_active`
+> - `ON DELETE RESTRICT` for referential integrity (users, form_types)
+> - `ON DELETE CASCADE` for child data cleanup (attachments, refresh_tokens)
+> - CHECK constraints for enum columns
+> - Indexes on frequently queried foreign keys and filter columns
 
 <div align="center">
   <img src="docs/architecture/db-schema.png" alt="ER Diagram" width="100%"/>
 </div>
 
+> [!IMPORTANT]
+> Ensure `docs/architecture/db-schema.png` reflects the latest migration including the `refresh_tokens` table (added in V7).
+
 ---
 
 <a id="api-contract--openapi"></a>
-## 🔌 API
+## 🔌 API Contract & OpenAPI
 
 ```mermaid
 flowchart LR
-    A["🧩 Spring Boot Controllers"] --> B["📄 OpenAPI 3.0 Spec"]
-    B --> C["🛠️ openapi-generator-cli"]
-    C --> D["📦 TypeScript Axios Client"]
-    D --> E["⚛️ React Application"]
+    A["🧩 Spring Boot Controllers<br/>@Operation annotations"] --> B["📄 OpenAPI 3.0 Spec<br/>auto-generated at runtime"]
+    B --> C["🛠️ openapi-generator-cli<br/>v7.24.0"]
+    C --> D["📦 TypeScript Axios Client<br/>src/api/generated/"]
+    D --> E["⚛️ React Application<br/>type-safe API calls"]
 
     classDef step fill:#EFF6FF,stroke:#2563EB,color:#1E3A8A,stroke-width:1px
     class A,B,C,D,E step
 ```
 
-**Key Endpoint Domains:**
-- **Auth:** Registration, login, token refresh, logout
-- **Users:** Profile management, admin user management, active/inactive toggling
-- **Applications:** Creation, listing, detailed view, status transitions (review, approve, reject, cancel)
-- **Attachments:** File upload, download, deletion
-- **Form Types:** CRUD operations and activation status
-- **Dashboard & Reports:** KPI aggregation and filtered analytical data
+**Notes:**
+- Generated client in `src/api/generated/` (134KB `api.ts`)
+- Generated files committed to repository; manually editing is not recommended
+- Regenerate when backend API changes
+- Swagger UI: `http://localhost:3000/swagger-ui/index.html` (Docker) or `http://localhost:8080/swagger-ui.html` (dev)
+
+---
+
+<a id="api-endpoints"></a>
+## 🌐 API Endpoints
+
+**33 verified endpoints across 7 controllers.**
+
+### 🔐 Authentication
+| Method | Endpoint | Description | Auth |
+|---|---|---|---|
+| 🟢 `POST` | `/api/v1/auth/register` | Register new user | Public |
+| 🟢 `POST` | `/api/v1/auth/login` | Authenticate user | Public |
+| 🟢 `POST` | `/api/v1/auth/refresh-token` | Refresh access token | Public |
+| 🟢 `POST` | `/api/v1/auth/logout` | Revoke refresh token | Public |
+
+### 👥 Users
+| Method | Endpoint | Description | Auth |
+|---|---|---|---|
+| 🔵 `GET` | `/api/v1/users/me` | Get current user profile | Authenticated |
+| 🟠 `PUT` | `/api/v1/users/me` | Update own profile | Authenticated |
+| 🔵 `GET` | `/api/v1/users/all` | List all users (paginated, searchable) | `ADMIN` |
+| 🔵 `GET` | `/api/v1/users/{userId}` | Get user by ID | `ADMIN` |
+| 🟠 `PUT` | `/api/v1/users/{userId}/update` | Update user | `ADMIN` |
+| 🟡 `PATCH` | `/api/v1/users/{userId}/activate` | Activate user | `ADMIN` |
+| 🟡 `PATCH` | `/api/v1/users/{userId}/deactivate` | Deactivate user | `ADMIN` |
+
+### 📝 Applications
+| Method | Endpoint | Description | Auth |
+|---|---|---|---|
+| 🟢 `POST` | `/api/v1/applications/create` | Create application | `PERSONNEL` |
+| 🔵 `GET` | `/api/v1/applications/my` | List own applications (paginated, filtered) | `PERSONNEL` |
+| 🔵 `GET` | `/api/v1/applications/all` | List all applications (paginated, filtered) | `ADMIN` |
+| 🔵 `GET` | `/api/v1/applications/{id}` | Get application detail | `PERSONNEL` / `ADMIN` |
+| 🟠 `PUT` | `/api/v1/applications/{id}` | Update application (NEW only) | `PERSONNEL` |
+| 🔴 `DELETE` | `/api/v1/applications/{id}` | Delete application (NEW only) | `PERSONNEL` |
+| 🟡 `PATCH` | `/api/v1/applications/{id}/cancel` | Cancel application | `PERSONNEL` |
+| 🟡 `PATCH` | `/api/v1/applications/{id}/review` | Move to review | `ADMIN` |
+| 🟡 `PATCH` | `/api/v1/applications/{id}/approve` | Approve application | `ADMIN` |
+| 🟡 `PATCH` | `/api/v1/applications/{id}/reject` | Reject application | `ADMIN` |
+
+### 📎 Attachments
+| Method | Endpoint | Description | Auth |
+|---|---|---|---|
+| 🟢 `POST` | `/api/v1/attachments/applications/{id}` | Upload file | `PERSONNEL` / `ADMIN` |
+| 🔵 `GET` | `/api/v1/attachments/applications/{id}` | List attachments for application | `PERSONNEL` / `ADMIN` |
+| 🔵 `GET` | `/api/v1/attachments/{id}/download` | Download file | `PERSONNEL` / `ADMIN` |
+| 🔴 `DELETE` | `/api/v1/attachments/{id}` | Delete attachment | `PERSONNEL` / `ADMIN` |
+
+### 📁 Form Types
+| Method | Endpoint | Description | Auth |
+|---|---|---|---|
+| 🔵 `GET` | `/api/v1/form-types` | List all form types | `PERSONNEL` / `ADMIN` |
+| 🔵 `GET` | `/api/v1/form-types/{id}` | Get form type by ID | `PERSONNEL` / `ADMIN` |
+| 🟢 `POST` | `/api/v1/form-types` | Create form type | `ADMIN` |
+| 🟠 `PUT` | `/api/v1/form-types/{id}` | Update form type | `ADMIN` |
+| 🟡 `PATCH` | `/api/v1/form-types/{id}/activate` | Activate form type | `ADMIN` |
+| 🟡 `PATCH` | `/api/v1/form-types/{id}/deactivate` | Deactivate form type | `ADMIN` |
+
+### 📈 Dashboard & Reports
+| Method | Endpoint | Description | Auth |
+|---|---|---|---|
+| 🔵 `GET` | `/api/v1/dashboard` | Get dashboard KPIs | `ADMIN` |
+| 🔵 `GET` | `/api/v1/reports/applications` | Get application report (filtered) | `ADMIN` |
 
 ---
 
@@ -294,33 +584,63 @@ application-management-system/
 │   └── application-management/
 │       ├── src/main/java/com/cybersoft/application_management/
 │       │   ├── business/           # Status transition rules
-│       │   ├── config/             # Configs
-│       │   ├── controller/         # REST controllers
+│       │   ├── config/             # Admin init, JWT config, OpenAPI config
+│       │   ├── controller/         # 7 REST controllers
 │       │   ├── dto/                # Request / Response DTOs
-│       │   ├── entity/             # JPA entities
+│       │   │   ├── request/        #   13 request DTOs
+│       │   │   └── response/       #   10 response DTOs
+│       │   ├── entity/             # 5 JPA entities
 │       │   ├── enums/              # ApplicationStatus, UserRole
 │       │   ├── exception/          # Typed exceptions + ErrorCode enum
 │       │   ├── handler/            # GlobalExceptionHandler
-│       │   ├── mapper/             # MapStruct mappers
-│       │   ├── repository/         # JPA repositories & Specifications
+│       │   ├── mapper/             # 5 MapStruct mappers
+│       │   ├── repository/         # JPA repositories
+│       │   │   ├── specification/  #   Dynamic query specifications
+│       │   │   └── impl/           #   Custom repository implementations
 │       │   ├── scheduler/          # Refresh token cleanup cron
-│       │   ├── security/           # JWT filters and configuration
-│       │   ├── service/            # Business logic and validators
-│       │   └── storage/            # File storage abstraction
+│       │   ├── security/           # JWT filter, config, handlers, UserDetails
+│       │   ├── service/            # Service interfaces
+│       │   │   ├── impl/           #   8 service implementations
+│       │   │   └── validator/      #   Application & User validators
+│       │   ├── storage/            # File storage abstraction
+│       │   └── validation/         # Custom @ValidPassword annotation
 │       ├── src/main/resources/
-│       │   └── db/migration/       # Flyway migration scripts
-│       └── Dockerfile
+│       │   ├── application.yaml
+│       │   └── db/migration/       # V1–V7 Flyway migration scripts
+│       ├── src/test/               # JUnit 5 unit tests
+│       ├── Dockerfile              # Multi-stage (Maven build + Temurin runtime)
+│       └── pom.xml
 ├── frontend/
 │   ├── src/
-│   │   ├── api/                    # Axios instance and generated client
-│   │   ├── app/                    # Router, theme, providers
-│   │   ├── components/             # Shared UI components
-│   │   ├── features/               # Domain-driven feature modules
-│   │   └── lib/                    # Utilities
-│   ├── Dockerfile
-│   └── nginx.conf
-├── docs/                           # Architecture diagrams and screenshots
-└── docker-compose.yml
+│   │   ├── api/
+│   │   │   ├── client.ts           # Axios instance + refresh interceptor
+│   │   │   ├── config.ts           # API config
+│   │   │   └── generated/          # OpenAPI-generated TypeScript client
+│   │   ├── app/
+│   │   │   ├── router/             # React Router configuration
+│   │   │   ├── providers/          # AppProviders, ThemeContext, QueryClient
+│   │   │   └── theme.ts            # MUI theme (light + dark tokens)
+│   │   ├── components/             # Shared: AppLayout, AppSidebar, AppHeader, StatusChip
+│   │   ├── features/
+│   │   │   ├── applications/       # Pages, hooks, API, components, schemas
+│   │   │   ├── attachments/        # API, hooks
+│   │   │   ├── auth/               # Context, guards, pages, schemas
+│   │   │   ├── dashboard/          # Pages, hooks, API
+│   │   │   ├── form-types/         # Pages, hooks, API, components, schemas
+│   │   │   ├── home/               # Home page
+│   │   │   ├── landing/            # Landing page
+│   │   │   ├── profile/            # Pages, hooks, API, schemas
+│   │   │   ├── reports/            # Pages, hooks, API
+│   │   │   └── users/              # Pages, hooks, API, components, schemas
+│   │   └── lib/                    # auth-storage (sessionStorage wrapper)
+│   ├── Dockerfile                  # Multi-stage (Node build + Nginx runtime)
+│   ├── nginx.conf                  # Reverse proxy + SPA fallback
+│   └── package.json
+├── docs/
+│   └── architecture/               # Diagrams, whiteboard, Excalidraw source
+├── docker-compose.yml
+├── .env.example
+└── README.md
 ```
 
 ---
@@ -328,23 +648,78 @@ application-management-system/
 <a id="docker--deployment"></a>
 ## 🐳 Docker & Deployment
 
-| Service | Internal Port | Purpose |
-|---|---|---|
-| `postgres` | 5432 | Database |
-| `backend` | 8080 | Spring Boot REST API |
-| `frontend` | 80 | SPA + Nginx Reverse Proxy |
+**3 containers:**
 
-> [!TIP]
-> **Nginx Proxy Rules:** Nginx serves the React SPA and proxies `/api/*`, `/v3/*`, and `/swagger-ui/*` requests to the backend container.
+| Service | Base Image | Internal Port | Purpose |
+|---|---|---|---|
+| `postgres` | `postgres:16` | 5432 | Database |
+| `backend` | Multi-stage (Maven → Temurin 21 JRE Alpine) | 8080 | Spring Boot REST API |
+| `frontend` | Multi-stage (Node 22 → Nginx 1.27 Alpine) | 80 | SPA + Reverse Proxy |
+
+```mermaid
+flowchart LR
+    Browser(["🌐 Browser :3000"])
+    Nginx["🧭 Nginx"]
+    Backend["⚙️ Spring Boot :8080"]
+    DB[("🗄️ PostgreSQL :5432")]
+    Vol1[("postgres_data")]
+    Vol2[("app_storage")]
+
+    Browser -->|"HTTP"| Nginx
+    Nginx -.->|"Static + SPA fallback"| Browser
+    Nginx -->|"/api/* /v3/* /swagger-ui/*"| Backend
+    Backend --> DB
+    Backend --> Vol2
+    DB --> Vol1
+
+    classDef client fill:#E0F2FE,stroke:#0284C7,color:#0C4A6E,stroke-width:1px
+    classDef proxy fill:#FEF3C7,stroke:#D97706,color:#78350F,stroke-width:1px
+    classDef service fill:#DCFCE7,stroke:#16A34A,color:#14532D,stroke-width:1px
+    classDef data fill:#EDE9FE,stroke:#7C3AED,color:#4C1D95,stroke-width:1px
+
+    class Browser client
+    class Nginx proxy
+    class Backend service
+    class DB,Vol1,Vol2 data
+```
+
+> [!IMPORTANT]
+> **Nginx Proxy Rules:**
+> - `/` → SPA fallback (`try_files $uri $uri/ /index.html`)
+> - `/api/*` → `proxy_pass http://backend:8080`
+> - `/v3/*` → OpenAPI spec proxy
+> - `/swagger-ui/*` → Swagger UI proxy
+> - Static assets (JS, CSS, images, fonts) → `expires 1y`, `Cache-Control: public, immutable`
+
+**Persistent volumes:** `postgres_data`, `app_storage`
+
+**Healthcheck:** PostgreSQL `pg_isready`. Backend starts only after `condition: service_healthy`.
 
 ---
 
 <a id="testing--quality"></a>
-## 🧪 Testing
+## 🧪 Testing & Quality
 
-- **Backend:** JUnit 5 unit tests for validators and Spring Boot context load tests.
-- **Frontend:** TypeScript strict mode, ESLint validation.
-- **Tooling Ready:** Playwright and axe-core dependencies are installed for future end-to-end and accessibility testing.
+### 🔬 Existing Tests
+
+| Test | Type | Coverage |
+|---|---|---|
+| `ApplicationManagementApplicationTests` | Spring Boot context test | Application context loads correctly |
+| `ApplicationValidatorTest` | JUnit 5 unit test (parameterized) | Status transition validations: updatable, reviewable, approvable, cancellable |
+| `UserValidatorTest` | JUnit 5 unit test | Activate/deactivate state validations |
+
+### 🧰 Available Tooling (installed, no test files written)
+
+| Tool | Purpose | Status |
+|---|---|---|
+| **Playwright** (`^1.62.1`) | End-to-end browser testing | Dev dependency installed; **no test files exist** |
+| **axe-core** (`^4.13.0`) | Accessibility auditing | Dev dependency installed; **no test files exist** |
+| **ESLint** + plugins | Code quality linting | Configured (`eslint.config.js`) |
+| **TypeScript strict** | Type safety | `tsc -b` runs before Vite build |
+
+### 🚧 Compile-Time Quality Gates
+- `npm run build` = `tsc -b && vite build` (TypeScript check + production build)
+- `npm run lint` = ESLint validation
 
 ---
 
@@ -361,12 +736,18 @@ cp .env.example .env
 docker compose up --build
 ```
 
+| URL | Purpose |
+|---|---|
+| `http://localhost:3000` | Frontend application |
+| `http://localhost:3000/swagger-ui/index.html` | API documentation |
+
 ### 💻 Development Setup
 
 **Backend:**
 ```bash
 cd backend/application-management
 ./mvnw spring-boot:run
+# Requires PostgreSQL running on POSTGRES_HOST:POSTGRES_PORT
 ```
 
 **Frontend:**
@@ -376,6 +757,12 @@ npm install
 npm run dev
 ```
 
+| URL | Purpose |
+|---|---|
+| `http://localhost:5173` | Frontend dev server |
+| `http://localhost:8080` | Backend API |
+| `http://localhost:8080/swagger-ui.html` | Swagger UI (direct) |
+
 ---
 
 <a id="environment-variables"></a>
@@ -383,18 +770,40 @@ npm run dev
 
 From `.env.example`:
 
-| Variable | Purpose |
-|---|---|
-| `POSTGRES_DB` | Database name |
-| `POSTGRES_USER` | Database user |
-| `POSTGRES_PASSWORD` | Database password |
-| `JWT_SECRET` | JWT signing key |
-| `JWT_ACCESS_EXPIRATION` | Access token TTL (ms) |
-| `JWT_REFRESH_EXPIRATION` | Refresh token TTL (ms) |
-| `ADMIN_EMAIL` | Initial admin email |
-| `ADMIN_PASSWORD` | Initial admin password |
+| Variable | Purpose | Default / Notes |
+|---|---|---|
+| `POSTGRES_DB` | Database name | Required |
+| `POSTGRES_USER` | Database user | Required |
+| `POSTGRES_PASSWORD` | Database password | 🔒 Required |
+| `POSTGRES_PORT` | Database port | `5432` |
+| `POSTGRES_HOST` | Database host | `localhost` (dev) / `postgres` (Docker) |
+| `SERVER_PORT` | Backend server port | `8080` |
+| `FRONTEND_PORT` | Frontend port | `3000` |
+| `JWT_SECRET` | JWT signing key | 🔒 Required |
+| `JWT_ACCESS_EXPIRATION` | Access token TTL (ms) | `900000` (15 min) |
+| `JWT_REFRESH_EXPIRATION` | Refresh token TTL (ms) | `604800000` (7 days) |
+| `JWT_ISSUER` | JWT issuer claim | `application-management-system` |
+| `ADMIN_EMAIL` | Initial admin email | 🔒 Required |
+| `ADMIN_PASSWORD` | Initial admin password | 🔒 Required |
+| `ADMIN_NAME` | Admin first name | `System` |
+| `ADMIN_SURNAME` | Admin last name | `Administrator` |
 
-*(Additional variables for ports and host names are also available.)*
+---
+
+<a id="screenshots"></a>
+## 📸 Screenshots
+
+| 🏠 Landing | 🔐 Authentication |
+|---|---|
+| <img src="docs/screenshots/landing.png" width="400"/> | <img src="docs/screenshots/login.png" width="400"/><br/><img src="docs/screenshots/register.png" width="400"/> |
+
+| 📝 Applications | 🛠️ Administration |
+|---|---|
+| <img src="docs/screenshots/my-applications.png" width="400"/><br/><img src="docs/screenshots/create-application.png" width="400"/><br/><img src="docs/screenshots/application-detail.png" width="400"/> | <img src="docs/screenshots/all-applications.png" width="400"/><br/><img src="docs/screenshots/users.png" width="400"/><br/><img src="docs/screenshots/form-types.png" width="400"/> |
+
+| 👤 Profile | |
+|---|---|
+| <img src="docs/screenshots/profile.png" width="400"/> | |
 
 ---
 
@@ -402,28 +811,40 @@ From `.env.example`:
 ## 🗺️ Roadmap
 
 **✅ Completed:**
-- Backend REST API and JWT authentication
-- Application workflow with status transitions
-- File attachment management
-- Admin dashboard and reports
-- React frontend with custom MUI theme
-- Docker Compose deployment
+- [x] Backend REST API (Spring Boot 3.5)
+- [x] JWT authentication with refresh token rotation
+- [x] Role-based authorization (ADMIN, PERSONNEL)
+- [x] Application workflow with 5 statuses and enforced transitions
+- [x] File attachment management
+- [x] Admin dashboard with KPI cards
+- [x] Reports with date/status/form-type filters
+- [x] User and form type management (CRUD, active/inactive states)
+- [x] OpenAPI documentation & TypeScript client generation
+- [x] React frontend with feature-based architecture
+- [x] Dark/Light mode with custom MUI theme
+- [x] Docker Compose deployment with Nginx reverse proxy
+- [x] Flyway database migrations (7 versions)
+- [x] Scheduled token cleanup and admin auto-initialization
+- [x] Landing page
 
 **⏳ Planned:**
-- Dedicated audit logging/history subsystem
-- Excel / PDF export
-- Email notifications
-- CI/CD pipeline
-- End-to-end test suite (Playwright)
+- [ ] Dedicated audit logging/history subsystem
+- [ ] Excel / PDF export
+- [ ] Email notifications
+- [ ] CI/CD pipeline
+- [ ] End-to-end test suite (Playwright)
+- [ ] Accessibility test suite (axe-core)
 
 ---
 
 <a id="future-improvements"></a>
 ## 🔮 Future Improvements
-- 🔔 In-app Notification Center
-- 💬 Application Comments/Notes
-- 🌍 Multi-language Support (i18n)
-- ⏱️ API Rate Limiting
+- 🔔 **In-app Notification Center**
+- 💬 **Application Comments/Notes**
+- 🌍 **Multi-language Support (i18n)**
+- ⏱️ **API Rate Limiting**
+- ☸️ **Kubernetes Deployment Manifests**
+- 🧪 **Broader Integration Test Coverage**
 
 ---
 
@@ -437,7 +858,6 @@ Corporate Application and Form Management System developed with Spring Boot and 
 ## 📄 License
 Developer — [Eray Yalman] (Internship Project, Cybersoft)
 This project was developed for educational/internship purposes.
-
 ---
 
 <a id="top-tr"></a>
@@ -447,32 +867,9 @@ This project was developed for educational/internship purposes.
 
 </div>
 
-# 🏢 UYGULAMA YÖNETİM SİSTEMİ
+# 🏢 Uygulama Yönetim Sistemi
 
-> Spring Boot + React + PostgreSQL + Docker ile geliştirilmiş kurumsal başvuru ve iş akışı platformu.
-
-<div align="center">
-
-[Mimari](#system-architecture-tr) · [API Dokümantasyonu](#api-endpoints-tr) · [Ekran Görüntüleri](#screenshots-tr) · [Kurulum](#installation-tr)
-
-</div>
-
----
-
-<div align="center">
-  <img src="docs/screenshots/dashboard.png" alt="Dashboard" width="800"/>
-</div>
-
----
-
-<a id="project-description-tr"></a>
-## 🎯 Proje Tanımı
-
-Kurumlarda izin, eğitim, avans, malzeme ve görevlendirme talepleri çoğunlukla dağınık e-posta yazışmaları, Excel tabloları veya sözlü iletişim yoluyla yönetilir. Bu geleneksel yaklaşım merkezi bir takip imkânı sunmaz ve net bir denetim izi (audit trail) tutmayı zorlaştırır.
-
-**Uygulama Yönetim Sistemi**, personelin başvuru oluşturup takip edebildiği, yöneticilerin ise bu başvuruları inceleyip onaylayabildiği/reddedebildiği ve raporlayabildiği web tabanlı bir platformdur. Çeşitli form tiplerini, durum yaşam döngüsünü, dosya eklerini ve analitik gösterge panelini destekleyen bir iş akışı sunar.
-
----
+> Rol tabanlı iş akışı, JWT güvenliği ve uçtan uca Docker dağıtımına sahip kurumsal başvuru ve form yönetim platformu.
 
 <div align="center">
 
@@ -489,47 +886,143 @@ Kurumlarda izin, eğitim, avans, malzeme ve görevlendirme talepleri çoğunlukl
 ![Vite](https://img.shields.io/badge/Vite-8.2.0-646CFF?style=for-the-badge&logo=vite&logoColor=white)
 ![MUI](https://img.shields.io/badge/MUI-9.3.1-007FFF?style=for-the-badge&logo=mui&logoColor=white)
 
+[Mimari](#system-architecture-tr) · [Özellikler](#features-tr) · [API](#api-endpoints-tr) · [Veritabanı](#database-tr) · [Docker](#docker--deployment-tr) · [Ekran Görüntüleri](#screenshots-tr) · [Kurulum](#installation-tr)
+
 </div>
 
 ---
 
-<a id="what-does-this-system-solve-tr"></a>
-## 💡 Bu sistem neyi çözüyor?
+<div align="center">
+  <img src="docs/screenshots/home-light.png" alt="Home Light" width="800"/>
+</div>
 
-- Dağınık e-posta/Excel taleplerini merkezi bir dijital iş akışıyla değiştirir.
-- Açık bir onay yaşam döngüsüyle (`NEW` → `IN_REVIEW` → `APPROVED` / `REJECTED`) net bir denetim izi sağlar.
-- Rol tabanlı JWT kimlik doğrulaması kullanarak başvuru verilerini güvence altına alır.
-- Gösterge paneli KPI'ları ve analitik özetlerle raporlamayı otomatikleştirir.
-- Başvurulara ait dosya eklerinin yönetimini kolaylaştırır.
+---
+
+## 📖 İçindekiler
+- [🎯 Proje Tanımı](#project-description-tr)
+- [💡 Neden Bu Proje?](#why-this-project-tr)
+- [✨ Özellikler](#features-tr)
+- [🔭 Sistem Genel Bakış](#system-at-a-glance-tr)
+- [🏗️ Sistem Mimarisi](#system-architecture-tr)
+- [🔄 Başvuru İş Akışı](#application-workflow-tr)
+- [🔐 Güvenlik Mimarisi](#security-architecture-tr)
+- [📊 Gösterge Paneli & Raporlama](#dashboard--reporting-tr)
+- [🎨 UI / UX Vitrini](#ui--ux-showcase-tr)
+- [🛠️ Teknolojiler](#technologies-tr)
+- [🧠 Temel Teknik Kararlar](#key-technical-decisions-tr)
+- [📜 İş Kuralları](#business-rules-tr)
+- [🗄️ Veritabanı](#database-tr)
+- [🔌 API Sözleşmesi & OpenAPI](#api-contract--openapi-tr)
+- [🌐 API Endpoint'leri](#api-endpoints-tr)
+- [📂 Proje Yapısı](#project-structure-tr)
+- [🐳 Docker & Dağıtım](#docker--deployment-tr)
+- [🧪 Test & Kalite](#testing--quality-tr)
+- [🚀 Kurulum](#installation-tr)
+- [⚙️ Ortam Değişkenleri](#environment-variables-tr)
+- [📸 Ekran Görüntüleri](#screenshots-tr)
+- [🗺️ Yol Haritası](#roadmap-tr)
+- [🔮 Gelecek İyileştirmeler](#future-improvements-tr)
+- [ℹ️ Proje Bilgisi](#project-information-tr)
+- [📄 Lisans](#license-tr)
+
+---
+
+<a id="project-description-tr"></a>
+## 🎯 Proje Tanımı
+
+Kurumlarda izin, eğitim, avans, malzeme ve görevlendirme talepleri çoğunlukla dağınık e-posta yazışmaları, Excel tabloları veya sözlü iletişim yoluyla yönetilir. Bu geleneksel yaklaşım merkezi bir takip imkânı sunmaz ve net bir denetim izi (audit trail) tutmayı zorlaştırır.
+
+**Application Management System (Uygulama Yönetim Sistemi)**, personelin başvuru oluşturup takip edebildiği, yöneticilerin ise bu başvuruları inceleyip onaylayabildiği/reddedebildiği ve raporlayabildiği kapsamlı bir web tabanlı platformdur.
+
+Sistem iki temel rol destekler: `PERSONNEL` (başvuru sahipleri) ve `ADMIN` (inceleyen/yöneten kullanıcılar). Sistem; 5 önceden tanımlı (seeded) form tipi, 5 durumlu bir yaşam döngüsü, dosya ekleri ve kapsamlı bir analitik gösterge panosu sunan eksiksiz bir iş akışı sağlar.
+
+---
+
+<a id="why-this-project-tr"></a>
+## 💡 Neden Bu Proje?
+
+| 🔴 Problem | 🟢 Çözüm |
+|---|---|
+| Manuel e-posta/sözlü talepler | Merkezi dijital başvuru iş akışı |
+| Excel/tablo ile takip | Aranabilir, filtrelenebilir, sayfalanabilir veri tabloları |
+| Belirsiz onay durumu | Açık durum iş akışı (`NEW` → `IN_REVIEW` → `APPROVED` / `REJECTED`) |
+| Eksik talep geçmişi | Zaman damgalı kayıtlar ve açık başvuru sahibi bilgisi (ayrı bir denetim günlüğü alt sistemi planlanıyor) |
+| Dağınık dosya ekleri | Başvuru bazlı dosya yükleme, indirme ve yönetim |
+| Yetkisiz erişim riskleri | JWT kimlik doğrulama + rol tabanlı yetkilendirme |
+| Manuel rapor derleme | Otomatik gösterge panosu KPI'ları ve filtrelenmiş raporlar |
+| Tutarsız dağıtım | Nginx reverse proxy içeren container'lı Docker Compose yığını |
 
 ---
 
 <a id="features-tr"></a>
-## ✨ Temel Özellikler
+## ✨ Özellikler
 
-### 👤 Personel
-- E-posta doğrulama ve özel şifre kurallarıyla kayıt olma
-- Erişim ve yenileme jetonu çiftiyle giriş yapma
+### 👤 Personel Özellikleri
+- E-posta doğrulama ve özel şifre kurallarıyla (`@ValidPassword`) kayıt olma
+- Giriş → erişim jetonu (access token) + yenileme jetonu (refresh token) çifti
+- **Oturum geri yükleme:** Sayfa yenilendiğinde, `sessionStorage`'daki mevcut erişim jetonu `GET /users/me` çağrısıyla kullanıcı durumunu geri yüklemek için kullanılır
+- **Otomatik erişim jetonu yenileme:** 401 yanıtı alındığında Axios interceptor, `POST /auth/refresh-token` üzerinden jetonları rotasyonla (eski jeton geçersiz kılınır, yeni çift verilir) şeffaf şekilde yeniler
 - Başvuru oluşturma (başlık, açıklama, form tipi seçimi)
-- Kendi başvurularını sayfalama, sıralama ve filtreleme ile görüntüleme
-- Başvuruları düzenleme, iptal etme veya silme (iş akışı kurallarına bağlı olarak)
+- Kendi başvurularını görüntüleme — sayfalanmış, sıralanmış, filtrelenmiş (Specification pattern)
+- Ek dosyalarla birlikte başvuru detayını görüntüleme
+- Başvuruları düzenleme (yalnızca `NEW` durumundayken)
+- Başvuruları iptal etme (`NEW` veya `IN_REVIEW` durumundan)
+- Başvuruları silme (yalnızca `NEW` durumundayken)
 - Dosya eki yükleme, indirme ve silme
-- Profil yönetimi
+- Profil görüntüleme ve güncelleme
+- Sunucu taraflı refresh token iptaliyle çıkış yapma
 
-### 🛡️ Yönetici
-- KPI kartları ve son başvuruları içeren gösterge paneli
-- Kurumdaki tüm başvuruları görüntüleme
-- İnceleme iş akışında başvuruları ilerletme (`IN_REVIEW`, `APPROVED`, `REJECTED`)
-- Kullanıcı yönetimi (listeleme, arama, aktif/pasif etme, güncelleme)
-- Form tipi yönetimi
-- Filtrelenmiş raporlar ve analitikler
+### 🛡️ Yönetici Özellikleri
+- KPI kartlarıyla gösterge paneli: toplam, bekleyen, onaylanan, reddedilen, iptal edilen, bugünkü sayı
+- Gösterge panosunda son başvurular listesi
+- Tüm başvuruları görüntüleme — sayfalanmış, sıralanmış, filtrelenmiş
+- Başvuruyu incelemeye alma (`NEW` → `IN_REVIEW`)
+- Başvuruyu onaylama (`IN_REVIEW` → `APPROVED`)
+- Başvuruyu reddetme (`IN_REVIEW` → `REJECTED`)
+- Kullanıcı yönetimi — listeleme, arama, detay görüntüleme
+- Kullanıcıları aktif/pasif hale getirme
+- Kullanıcı bilgilerini güncelleme
+- Form tipi CRUD işlemleri — oluşturma, güncelleme, aktif/pasif hale getirme
+- Tarih aralığı, durum ve form tipi filtreli raporlar
+- Durum dağılımı ve form tipi dağılımı analitikleri
+
+### 🔐 Güvenlik Özellikleri
+- JWT erişim jetonları + yenileme jetonları
+- SHA-256 ile hash'lenmiş, veritabanında saklanan refresh token
+- Refresh token rotasyonu — kullanılan jeton silinir, yeni çift verilir
+- BCrypt şifre hash'leme (cost factor 12)
+- Durumsuz (stateless) oturumlar (`SessionCreationPolicy.STATELESS`)
+- `@PreAuthorize` ile metot düzeyinde güvenlik
+- Özel `JwtAuthenticationEntryPoint` (yapılandırılmış 401 JSON)
+- Özel `JwtAccessDeniedHandler` (yapılandırılmış 403 JSON)
+- `sessionStorage`'da saklanan jeton (sekme kapanınca temizlenir)
+- Süresi dolmuş/iptal edilmiş jetonlar için zamanlanmış temizlik (günlük cron)
+- Geliştirme ve Docker ortamları için CORS yapılandırması
+- Özel `@ValidPassword` kısıt (constraint) anotasyonu + doğrulayıcı
+
+### 🛠️ Platform Özellikleri
+- Genel hata yönetimi (`@RestControllerAdvice` + 20'den fazla girdi içeren tipli `ErrorCode` enum'u)
+- Bean Validation (`jakarta.validation`)
+- Flyway şema migrasyonları (7 sürüm, şema için tek doğruluk kaynağı)
+- Hibernate `validate` modu (şema otomatik oluşturulmaz)
+- MapStruct DTO eşleme (5 mapper)
+- Dinamik, tip güvenli arama için Specification pattern
+- Swagger UI ile OpenAPI dokümantasyonu
+- OpenAPI'den üretilen TypeScript Axios istemcisi
+- Spring Boot Actuator
+- Docker Compose (3 servis, healthcheck, 2 kalıcı volume)
+- Nginx reverse proxy (SPA fallback + API/Swagger proxy + statik varlık önbellekleme)
+- Çok aşamalı Dockerfile'lar (Node 22 build + Nginx runtime, Maven + Temurin 21 runtime)
+- Material UI bileşen kütüphanesiyle duyarlı (responsive) arayüz
+- Karanlık / Aydınlık mod (özel tasarım token'larına sahip ThemeContext)
+- `@fontsource/inter` ile Inter font ailesi
+- Landing page (tanıtım sayfası)
+- İlk başlatmada otomatik admin kullanıcı oluşturma (`AdminInitializer`)
 
 ---
 
-<a id="system-architecture-tr"></a>
-## 🏗️ Sistem Mimarisi
-
-### 🔭 Sistem Genel Bakış
+<a id="system-at-a-glance-tr"></a>
+## 🔭 Sistem Genel Bakış
 
 ```mermaid
 flowchart TD
@@ -557,14 +1050,36 @@ flowchart TD
     class DB,Storage data
 ```
 
+> Her üç servis de Docker Compose ile orkestre edilen Docker container'ları olarak çalışır.
+
+---
+
+<a id="system-architecture-tr"></a>
+## 🏗️ Sistem Mimarisi
+
 <div align="center">
-  <img src="docs/architecture/system-design-whiteboard.png" alt="Sistem Mimarisi" width="100%"/>
+  <img src="docs/architecture/system-design-whiteboard.png" alt="System Architecture" width="100%"/>
 </div>
+
+> Genel mimariyi, varlık ilişkilerini ve istek/yanıt akışını gösteren sistem tasarım beyaz tahtası. ([Kaynak Excalidraw dosyası](docs/architecture/system-design.excalidraw))
 
 ---
 
 <a id="application-workflow-tr"></a>
 ## 🔄 Başvuru İş Akışı
+
+**Doğrulanmış geçişler** (`ApplicationValidator` + `ApplicationFormServiceImpl`'den):
+
+```text
+NEW        → IN_REVIEW   (Admin: moveToReview)
+NEW        → CANCELLED   (Personnel: cancel)
+IN_REVIEW  → APPROVED    (Admin: approve)
+IN_REVIEW  → REJECTED    (Admin: reject)
+IN_REVIEW  → CANCELLED   (Personnel: cancel)
+APPROVED   → (terminal)
+REJECTED   → (terminal)
+CANCELLED  → (terminal)
+```
 
 ```mermaid
 stateDiagram-v2
@@ -596,12 +1111,18 @@ stateDiagram-v2
 ---
 
 <a id="security-architecture-tr"></a>
-## 🔐 Güvenlik
+## 🔐 Güvenlik Mimarisi
 
-- `JwtAuthenticationFilter` ile durumsuz (stateless) Spring Security filtre zinciri.
-- Erişim ve yenileme jetonları içeren jjwt tabanlı JWT yapısı.
-- Refresh token rotasyonu (kullanılan eski jeton silinir, yeni çift verilir).
-- `@PreAuthorize` ile metot düzeyinde güvenlik.
+- Spring Security filtre zinciri yapılandırması (stateless)
+- Her istekte çalışan `JwtAuthenticationFilter`
+- jjwt kütüphanesiyle JWT (erişim + yenileme jetonları)
+- Refresh token: SHA-256 ile hash'lenir, DB'de saklanır, kullanılınca silinir (rotasyon)
+- BCrypt şifre encoding (cost factor 12)
+- Controller endpoint'lerinde `@EnableMethodSecurity` + `@PreAuthorize`
+- Özel 401/403 JSON hata işleyicileri
+- Auth endpoint'leri herkese açık, diğer tüm endpoint'ler kimlik doğrulama gerektirir
+- İstemci tarafı jeton saklama için `sessionStorage` (`localStorage` değil)
+- Zamanlanmış jeton temizliği (`RefreshTokenCleanupScheduler`, cron `0 30 3 * * *`)
 
 ```mermaid
 sequenceDiagram
@@ -612,9 +1133,15 @@ sequenceDiagram
 
     rect rgb(224, 242, 254)
     Client->>API: POST /auth/login {email, password}
-    API->>DB: Kimlik doğrulama & refresh token oluştur (SHA-256 hash)
+    API->>DB: Kimlik bilgilerini doğrula (BCrypt)
+    API->>DB: Refresh token oluştur (SHA-256 hash)
     API-->>Client: {accessToken, refreshToken, user}
     Note over Client: Jetonlar sessionStorage'da saklanır
+    end
+
+    rect rgb(220, 252, 231)
+    Client->>API: GET /api/... (Bearer accessToken)
+    API-->>Client: 200 OK
     end
 
     Note over Client,API: Erişim jetonunun süresi dolar
@@ -626,8 +1153,11 @@ sequenceDiagram
 
     rect rgb(237, 233, 254)
     Client->>API: POST /auth/refresh-token {refreshToken}
-    API->>DB: Jeton hash'ini doğrula, eskiyi sil, yeni oluştur
+    API->>DB: Jeton hash'ini doğrula + süre kontrolü
+    API->>DB: Eski refresh token'ı sil
+    API->>DB: Yeni refresh token oluştur
     API-->>Client: {newAccessToken, newRefreshToken}
+    Note over Client: Eski jetonlar sessionStorage'da değiştirilir
     end
 
     Client->>API: Orijinal isteği tekrar dener
@@ -635,14 +1165,30 @@ sequenceDiagram
 ```
 
 > [!IMPORTANT]
-> **Jeton Saklama Güvenliği:** Jetonların tarayıcı sekmesi kapatıldıktan sonra kalıcı olmamasını sağlamak için localStorage yerine sessionStorage tercih edilmiştir. Bu tercih jeton kalıcılık süresini sınırlar, ancak XSS saldırılarına karşı tek başına bir koruma mekanizması değildir.
+> **Oturum Geri Yükleme vs. Otomatik Jeton Yenileme**
+> - **Oturum Geri Yükleme** — Sayfa yenilendiğinde uygulama `sessionStorage`'da mevcut bir erişim jetonu olup olmadığını kontrol eder ve kimlik bilgisi tekrar girmeden kullanıcı profilini geri yüklemek için `GET /users/me` çağırır.
+> - **Otomatik Jeton Yenileme** — Bir API çağrısı 401 yanıtı aldığında, Axios interceptor `/auth/refresh-token`'ı şeffaf şekilde çağırır, her iki jetonu da `sessionStorage`'da değiştirir (rotasyon) ve başarısız isteği tekrar dener. Eşzamanlı istekler yenileme sırasında kuyruğa alınır.
 
 ---
 
 <a id="dashboard--reporting-tr"></a>
 ## 📊 Gösterge Paneli & Raporlama
 
-Gösterge paneli ve raporlama modülleri, metrikleri ve analitik özetleri sunar.
+Gösterge paneli ve raporlama modülleri, **Recharts** (pasta grafikler, çubuk grafikler) kullanarak gerçek zamanlı metrikler ve analitikler sunar.
+
+**📈 Gösterge Paneli KPI'ları** (`DashboardResponse`'dan):
+- Toplam başvuru sayısı
+- Bekleyen başvurular (`NEW` + `IN_REVIEW`)
+- Onaylanan / Reddedilen / İptal edilen sayıları
+- Bugünkü başvurular
+- Son başvurular listesi
+
+**📋 Raporlar** (`ApplicationReportResponse`'dan):
+- Tarih aralığı filtresi (başlangıç, bitiş)
+- Durum filtresi
+- Form tipi filtresi
+- KPI dökümü: toplam, yeni, incelemede, onaylanan, reddedilen, iptal edilen
+- Form tipi dağılımı (`applicationsByFormType`)
 
 <div align="center">
   <img src="docs/screenshots/dashboard.png" width="48%" style="margin-right: 1%;"/>
@@ -652,78 +1198,242 @@ Gösterge paneli ve raporlama modülleri, metrikleri ve analitik özetleri sunar
 ---
 
 <a id="ui--ux-showcase-tr"></a>
-## 🎨 Arayüz Ekran Görüntüleri
+## 🎨 UI / UX Vitrini
+
+Frontend, hem aydınlık hem karanlık paletler için özel tasarım token'ları tanımlayan kapsamlı bir özel tema (`theme.ts` — 290 satır) kullanan sağlam **Material UI v9** tasarım sistemini kullanır.
+
+**Öne çıkanlar:**
+- 🧩 Daraltılabilir `AppSidebar` + `AppHeader` içeren duyarlı `AppLayout`
+- 🌓 `ThemeContext` üzerinden sorunsuz Karanlık/Aydınlık mod geçişi
+- ✒️ `@fontsource/inter` ile net tipografi
 
 | ☀️ Aydınlık Mod | 🌙 Karanlık Mod |
 |---|---|
 | ![Home Light](docs/screenshots/home-light.png) | ![Home Dark](docs/screenshots/home-dark.png) |
 
-| 🏠 Landing | 🔐 Kimlik Doğrulama |
-|---|---|
-| <img src="docs/screenshots/landing.png" width="400"/> | <img src="docs/screenshots/login.png" width="400"/><br/><img src="docs/screenshots/register.png" width="400"/> |
+---
 
-| 📝 Başvurular | 🛠️ Yönetim |
-|---|---|
-| <img src="docs/screenshots/my-applications.png" width="400"/><br/><img src="docs/screenshots/create-application.png" width="400"/><br/><img src="docs/screenshots/application-detail.png" width="400"/> | <img src="docs/screenshots/all-applications.png" width="400"/><br/><img src="docs/screenshots/users.png" width="400"/><br/><img src="docs/screenshots/form-types.png" width="400"/> |
+<a id="technologies-tr"></a>
+## 🛠️ Teknolojiler
 
-| 👤 Profil | |
-|---|---|
-| <img src="docs/screenshots/profile.png" width="400"/> | |
+### ⚙️ Backend
+| Teknoloji | Sürüm | Amaç |
+|---|---|---|
+| **Java** | 21 | Çalışma zamanı platformu |
+| **Spring Boot** | 3.5.16 | Uygulama framework'ü |
+| **Spring Security** | Managed | Kimlik doğrulama & yetkilendirme |
+| **Spring Data JPA** | Managed | Veri erişim katmanı |
+| **Hibernate** | Managed | ORM — `validate` modu |
+| **PostgreSQL** | 16 | İlişkisel veritabanı |
+| **Flyway** | Managed | Veritabanı şema migrasyonu |
+| **JWT (jjwt)** | 0.12.7 | Jeton tabanlı kimlik doğrulama |
+| **MapStruct** | 1.6.3 | Derleme zamanı DTO ↔ Entity eşleme |
+| **Lombok** | 1.18.46 | Boilerplate azaltma |
+| **SpringDoc OpenAPI** | 2.8.9 | API dokümantasyonu & Swagger UI |
+| **Bean Validation** | Managed | İstek doğrulama |
+| **Spring Boot Actuator** | Managed | Uygulama izleme endpoint'leri |
+| **Maven** | Wrapper | Build & bağımlılık yönetimi |
+
+### ⚛️ Frontend
+| Teknoloji | Sürüm | Amaç |
+|---|---|---|
+| **React** | 19 | UI kütüphanesi |
+| **TypeScript** | 6 | Tip güvenli geliştirme |
+| **Vite** | 8 | Build aracı & dev server |
+| **Material UI (MUI)** | 9 | Bileşen kütüphanesi |
+| **MUI X Data Grid** | 9 | Sıralama, filtreleme, sayfalamalı gelişmiş veri tabloları |
+| **React Router** | 7 | İstemci taraflı yönlendirme |
+| **TanStack Query** | 5 | Sunucu durumu yönetimi & önbellekleme |
+| **Axios** | 1.19 | Interceptor'lı HTTP istemcisi |
+| **React Hook Form** | 7 | Form durumu yönetimi |
+| **Zod** | 4 | Şema doğrulama |
+| **Recharts** | 3 | Veri görselleştirme (grafikler) |
+| **Emotion** | 11 | CSS-in-JS stil motoru (MUI) |
+| **Inter (Fontsource)** | 5 | Tipografi |
+
+### ☁️ Altyapı
+| Teknoloji | Sürüm | Amaç |
+|---|---|---|
+| **Docker** | — | Container'laştırma |
+| **Docker Compose** | — | Çoklu container orkestrasyonu |
+| **Nginx** | 1.27-alpine | Reverse proxy, SPA sunumu, statik önbellekleme |
+| **Node** | 22-alpine | Frontend build aşaması |
+| **Maven** | 3.9 + Temurin 21 | Backend build aşaması |
+| **Eclipse Temurin** | 21-jre-alpine | Backend çalışma zamanı |
 
 ---
 
 <a id="key-technical-decisions-tr"></a>
-## 🧠 Teknik Kararlar
+## 🧠 Temel Teknik Kararlar
 
-- **DTO + MapStruct:** Entity'ler doğrudan API'ye açılmaz; derleme zamanı mapper'lar, çalışma zamanı reflection maliyetlerini önler.
-- **Specification Pattern:** Filtreleme ve arama işlemleri için ham SQL yerine dinamik ve tip güvenli sorgular kullanılır.
-- **Durumsuz (Stateless) Kimlik Doğrulama:** Refresh token rotasyonuyla JWT kullanılmıştır. Jeton hırsızlığı risklerini azaltmak için yenileme jetonları veritabanında SHA-256 ile hash'lenmiş olarak saklanır.
-- **Flyway Migrasyonları:** Veritabanı şeması için tek doğruluk kaynağı Flyway'dir; Hibernate `validate` modunda yapılandırılmıştır.
-- **Genel Hata Yönetimi:** `@RestControllerAdvice` ile tüm API endpoint'lerinde tutarlı, JSON formatında hata yanıtları sağlanır.
-- **API İstemci Üretimi:** TypeScript Axios istemcisi, OpenAPI spesifikasyonundan otomatik olarak üretilerek backend ve frontend arasında tip güvenliği garanti edilir.
-- **Özellik Bazlı Mimari:** Frontend, ilgili bileşenleri, hook'ları ve şemaları gruplayan domain odaklı bir dizin yapısı (örn. `features/applications/`) kullanır.
-- **Docker + Nginx Proxy:** Üretimde CORS sorunlarını önlemek için SPA fallback ve API reverse proxy yetenekleriyle tek kaynaklı dağıtım gerçekleştirilmiştir.
+1. **DTO + MapStruct** — Entity'ler asla API'ye dışa açılmaz; derleme zamanı mapper'lar, çalışma zamanı reflection maliyetini önler.
+2. **Specification Pattern** — `ApplicationFormSpecification`, `UserSpecification` → ham SQL olmadan dinamik, tip güvenli, birleştirilebilir sorgular.
+3. **JWT + Refresh Token Rotasyonu** — Sunucu taraflı oturum olmadan stateless kimlik doğrulama. Kullanılan refresh token'lar silinir → jeton hırsızlığı riskini azaltır.
+4. **SHA-256 Jeton Hash'leme** — Ham refresh token'lar asla veritabanında saklanmaz; yalnızca hash'leri tutulur.
+5. **Flyway + Hibernate validate** — Şema için tek doğruluk kaynağı Flyway migrasyonlarıdır. Hibernate yalnızca entity eşlemesini mevcut şemaya göre doğrular.
+6. **`localStorage` yerine `sessionStorage`** — Sekme/tarayıcı kapanınca jetonlar otomatik temizlenir → XSS ile jeton hırsızlığı riskini azaltır.
+7. **Genel Hata Yönetimi** — `@RestControllerAdvice` + tipli `ErrorCode` enum'u → tüm endpoint'lerde tutarlı, makine tarafından okunabilir hata yanıtları.
+8. **API İstemci Üretimi** — OpenAPI'den üretilen TypeScript Axios istemcisi düşük seviyeli API sözleşmesini yönetirken, frontend servis sarmalayıcıları ve hook'lar uygulama seviyesinde soyutlama sağlar.
+9. **Docker + Nginx Reverse Proxy** — Tek kaynaklı (single-origin) dağıtım. SPA fallback + `/api/*` proxy → üretimde CORS gerekmez.
+10. **Özellik Bazlı (Feature-based) Frontend Mimarisi** — API, hook, sayfa ve şemaların bir arada bulunduğu domain odaklı dizin yapısı (`features/applications/`, `features/auth/`, vb.).
+11. **TanStack Query** — Sunucu durumu önbellekleme, arka planda yeniden veri çekme, mutation bazlı önbellek geçersiz kılma. API verisi için manuel durum yönetimi yok.
+12. **Kalıcı Docker Volume'leri** — `postgres_data` + `app_storage`, container yeniden oluşturulsa bile kalıcıdır.
+13. **Admin Otomatik Başlatma** — `CommandLineRunner`, ilk başlatmada ortam değişkenlerinden admin kullanıcı oluşturur.
+14. **Zamanlanmış Jeton Temizliği** — Günlük cron işi, süresi dolmuş/iptal edilmiş refresh token'ları veritabanından temizler.
+
+---
+
+<a id="business-rules-tr"></a>
+## 📜 İş Kuralları
+
+| ⚖️ Kural | 🔒 Uygulayan |
+|---|---|
+| Personel yalnızca kendi başvurularını görüntüleyebilir | `ApplicationValidator.validateAccess()` |
+| Admin tüm başvuruları görüntüleyebilir | `getAllApplications` üzerinde `@PreAuthorize("hasRole('ADMIN')")` |
+| Yalnızca `NEW` başvurular düzenlenebilir | `ApplicationValidator.validateUpdatable()` |
+| Yalnızca `NEW` başvurular silinebilir | `ApplicationValidator.validateDeletable()` |
+| Yalnızca `NEW` başvurular incelemeye alınabilir | `ApplicationValidator.validateReviewable()` |
+| Yalnızca `IN_REVIEW` başvurular onaylanabilir | `ApplicationValidator.validateApprovable()` |
+| Yalnızca `IN_REVIEW` başvurular reddedilebilir | `ApplicationValidator.validateRejectable()` |
+| İptal `NEW` veya `IN_REVIEW`'dan yapılabilir | `ApplicationValidator.validateCancellable()` |
+| `APPROVED`, `REJECTED`, `CANCELLED` nihaidir (terminal) | `ApplicationStatusValidator` ALLOWED_TRANSITIONS → boş küme |
+| Pasif form tipleri yeni başvurularda kullanılamaz | `ApplicationFormServiceImpl.create()` → `InactiveFormTypeException` |
+| Pasif form tipleri düzenlemede kullanılamaz | `ApplicationFormServiceImpl.updateApplicationForm()` → `InactiveFormTypeException` |
+| Yinelenen e-posta kaydı engellenir | DB unique constraint `uq_users_email` + `ErrorCode.EMAIL_ALREADY_EXISTS` |
+| Yinelenen form tipi adı engellenir | DB unique constraint `uq_form_types_name` + `ErrorCode.FORM_TYPE_ALREADY_EXISTS` |
+| Zaten aktif kullanıcı tekrar aktif edilemez | `UserValidator.validateActivation()` |
+| Zaten pasif kullanıcı tekrar pasif edilemez | `UserValidator.validateDeactivation()` |
+| Kullanılan refresh token silinir (rotasyon) | `RefreshTokenServiceImpl` — eskisini sil, yenisini oluştur |
+| Süresi dolmuş / iptal edilmiş jetonlar reddedilir | `RefreshTokenServiceImpl.validate()` |
+| Yükleme için dosya tipi ve boyut kısıtlamaları | `ErrorCode.INVALID_FILE_TYPE`, `ErrorCode.FILE_SIZE_EXCEEDED` |
 
 ---
 
 <a id="database-tr"></a>
 ## 🗄️ Veritabanı
 
-| Tablo | Amaç |
-|---|---|
-| `users` | Kullanıcı hesapları |
-| `form_types` | Başvuru kategorileri |
-| `application_forms` | Gönderilen başvurular |
-| `attachments` | Yüklenen dosyalar |
-| `refresh_tokens` | JWT yenileme jetonları |
+**5 Tablo (Flyway V1–V7):**
+
+| Tablo | Migrasyon | Amaç | Temel Kısıtlar |
+|---|---|---|---|
+| `users` | V1 | Kullanıcı hesapları | PK UUID, UNIQUE email, CHECK role IN ('ADMIN','PERSONNEL'), `is_active` |
+| `form_types` | V2 | Başvuru kategorileri | PK UUID, UNIQUE name, `is_active` |
+| `application_forms` | V3 | Gönderilen başvurular | FK → users (`RESTRICT`), FK → form_types (`RESTRICT`), CHECK status |
+| `attachments` | V4 | Yüklenen dosyalar | FK → application_forms (`CASCADE`) |
+| `refresh_tokens` | V7 | JWT yenileme jetonları | FK → users (`CASCADE`), UNIQUE token_hash, `revoked`, `expires_at` |
+
+**İndeksler (V6 + V7):**
+- `idx_application_forms_user_id`
+- `idx_application_forms_form_type_id`
+- `idx_application_forms_status`
+- `idx_attachments_application_form_id`
+- `idx_refresh_tokens_user_id`
+- `idx_refresh_tokens_expires_at`
+
+**Seed veri (V5):** 5 varsayılan form tipi — İzin, Eğitim, Avans, Malzeme, Görev
+
+> [!TIP]
+> **Tasarım Kararları:**
+> - UUID birincil anahtarlar (`gen_random_uuid()`)
+> - Tüm zaman damgaları için `TIMESTAMPTZ`
+> - Kullanıcılar ve form tiplerinde `is_active` ile soft-active durumu
+> - Referans bütünlüğü için `ON DELETE RESTRICT` (users, form_types)
+> - Alt veri temizliği için `ON DELETE CASCADE` (attachments, refresh_tokens)
+> - Enum kolonları için CHECK kısıtları
+> - Sık sorgulanan foreign key ve filtre kolonlarında indeksler
 
 <div align="center">
   <img src="docs/architecture/db-schema.png" alt="ER Diagram" width="100%"/>
 </div>
 
+> [!IMPORTANT]
+> `docs/architecture/db-schema.png` dosyasının en güncel migrasyonu (V7'de eklenen `refresh_tokens` tablosu dahil) yansıttığından emin olun.
+
 ---
 
 <a id="api-contract--openapi-tr"></a>
-## 🔌 API
+## 🔌 API Sözleşmesi & OpenAPI
 
 ```mermaid
 flowchart LR
-    A["🧩 Spring Boot Controller'ları"] --> B["📄 OpenAPI 3.0 Spesifikasyonu"]
-    B --> C["🛠️ openapi-generator-cli"]
-    C --> D["📦 TypeScript Axios İstemcisi"]
-    D --> E["⚛️ React Uygulaması"]
+    A["🧩 Spring Boot Controller'ları<br/>@Operation anotasyonları"] --> B["📄 OpenAPI 3.0 Spesifikasyonu<br/>çalışma zamanında otomatik üretilir"]
+    B --> C["🛠️ openapi-generator-cli<br/>v7.24.0"]
+    C --> D["📦 TypeScript Axios İstemcisi<br/>src/api/generated/"]
+    D --> E["⚛️ React Uygulaması<br/>tip güvenli API çağrıları"]
 
     classDef step fill:#EFF6FF,stroke:#2563EB,color:#1E3A8A,stroke-width:1px
     class A,B,C,D,E step
 ```
 
-**Temel Endpoint Grupları:**
-- **Auth:** Kayıt, giriş, jeton yenileme, çıkış
-- **Users:** Profil yönetimi, yönetici kullanıcı yönetimi, aktif/pasif durumu değiştirme
-- **Applications:** Oluşturma, listeleme, detaylı görünüm, durum geçişleri (inceleme, onay, ret, iptal)
-- **Attachments:** Dosya yükleme, indirme, silme
-- **Form Types:** CRUD işlemleri ve aktiflik durumu
-- **Dashboard & Reports:** KPI hesaplamaları ve filtrelenmiş analitik veriler
+**Notlar:**
+- Üretilen istemci `src/api/generated/` altında (134KB `api.ts`)
+- Üretilen dosyalar repoya commit edilir; manuel düzenleme önerilmez
+- Backend API değiştiğinde yeniden üretilmeli
+- Swagger UI: `http://localhost:3000/swagger-ui/index.html` (Docker) veya `http://localhost:8080/swagger-ui.html` (dev)
+
+---
+
+<a id="api-endpoints-tr"></a>
+## 🌐 API Endpoint'leri
+
+**7 controller genelinde 33 doğrulanmış endpoint.**
+
+### 🔐 Kimlik Doğrulama
+| Metot | Endpoint | Açıklama | Yetki |
+|---|---|---|---|
+| 🟢 `POST` | `/api/v1/auth/register` | Yeni kullanıcı kaydı | Public |
+| 🟢 `POST` | `/api/v1/auth/login` | Kullanıcı kimlik doğrulama | Public |
+| 🟢 `POST` | `/api/v1/auth/refresh-token` | Erişim jetonunu yenile | Public |
+| 🟢 `POST` | `/api/v1/auth/logout` | Refresh token'ı iptal et | Public |
+
+### 👥 Kullanıcılar
+| Metot | Endpoint | Açıklama | Yetki |
+|---|---|---|---|
+| 🔵 `GET` | `/api/v1/users/me` | Mevcut kullanıcı profilini getir | Authenticated |
+| 🟠 `PUT` | `/api/v1/users/me` | Kendi profilini güncelle | Authenticated |
+| 🔵 `GET` | `/api/v1/users/all` | Tüm kullanıcıları listele (sayfalanmış, aranabilir) | `ADMIN` |
+| 🔵 `GET` | `/api/v1/users/{userId}` | ID'ye göre kullanıcı getir | `ADMIN` |
+| 🟠 `PUT` | `/api/v1/users/{userId}/update` | Kullanıcıyı güncelle | `ADMIN` |
+| 🟡 `PATCH` | `/api/v1/users/{userId}/activate` | Kullanıcıyı aktif et | `ADMIN` |
+| 🟡 `PATCH` | `/api/v1/users/{userId}/deactivate` | Kullanıcıyı pasif et | `ADMIN` |
+
+### 📝 Başvurular
+| Metot | Endpoint | Açıklama | Yetki |
+|---|---|---|---|
+| 🟢 `POST` | `/api/v1/applications/create` | Başvuru oluştur | `PERSONNEL` |
+| 🔵 `GET` | `/api/v1/applications/my` | Kendi başvurularını listele (sayfalanmış, filtreli) | `PERSONNEL` |
+| 🔵 `GET` | `/api/v1/applications/all` | Tüm başvuruları listele (sayfalanmış, filtreli) | `ADMIN` |
+| 🔵 `GET` | `/api/v1/applications/{id}` | Başvuru detayını getir | `PERSONNEL` / `ADMIN` |
+| 🟠 `PUT` | `/api/v1/applications/{id}` | Başvuruyu güncelle (yalnızca NEW) | `PERSONNEL` |
+| 🔴 `DELETE` | `/api/v1/applications/{id}` | Başvuruyu sil (yalnızca NEW) | `PERSONNEL` |
+| 🟡 `PATCH` | `/api/v1/applications/{id}/cancel` | Başvuruyu iptal et | `PERSONNEL` |
+| 🟡 `PATCH` | `/api/v1/applications/{id}/review` | İncelemeye al | `ADMIN` |
+| 🟡 `PATCH` | `/api/v1/applications/{id}/approve` | Başvuruyu onayla | `ADMIN` |
+| 🟡 `PATCH` | `/api/v1/applications/{id}/reject` | Başvuruyu reddet | `ADMIN` |
+
+### 📎 Ekler
+| Metot | Endpoint | Açıklama | Yetki |
+|---|---|---|---|
+| 🟢 `POST` | `/api/v1/attachments/applications/{id}` | Dosya yükle | `PERSONNEL` / `ADMIN` |
+| 🔵 `GET` | `/api/v1/attachments/applications/{id}` | Başvurunun eklerini listele | `PERSONNEL` / `ADMIN` |
+| 🔵 `GET` | `/api/v1/attachments/{id}/download` | Dosyayı indir | `PERSONNEL` / `ADMIN` |
+| 🔴 `DELETE` | `/api/v1/attachments/{id}` | Eki sil | `PERSONNEL` / `ADMIN` |
+
+### 📁 Form Tipleri
+| Metot | Endpoint | Açıklama | Yetki |
+|---|---|---|---|
+| 🔵 `GET` | `/api/v1/form-types` | Tüm form tiplerini listele | `PERSONNEL` / `ADMIN` |
+| 🔵 `GET` | `/api/v1/form-types/{id}` | ID'ye göre form tipi getir | `PERSONNEL` / `ADMIN` |
+| 🟢 `POST` | `/api/v1/form-types` | Form tipi oluştur | `ADMIN` |
+| 🟠 `PUT` | `/api/v1/form-types/{id}` | Form tipini güncelle | `ADMIN` |
+| 🟡 `PATCH` | `/api/v1/form-types/{id}/activate` | Form tipini aktif et | `ADMIN` |
+| 🟡 `PATCH` | `/api/v1/form-types/{id}/deactivate` | Form tipini pasif et | `ADMIN` |
+
+### 📈 Gösterge Paneli & Raporlar
+| Metot | Endpoint | Açıklama | Yetki |
+|---|---|---|---|
+| 🔵 `GET` | `/api/v1/dashboard` | Gösterge paneli KPI'larını getir | `ADMIN` |
+| 🔵 `GET` | `/api/v1/reports/applications` | Filtrelenmiş başvuru raporu getir | `ADMIN` |
 
 ---
 
@@ -736,33 +1446,63 @@ application-management-system/
 │   └── application-management/
 │       ├── src/main/java/com/cybersoft/application_management/
 │       │   ├── business/           # Durum geçiş kuralları
-│       │   ├── config/             # Konfigürasyonlar
-│       │   ├── controller/         # REST controller'ları
+│       │   ├── config/             # Admin init, JWT config, OpenAPI config
+│       │   ├── controller/         # 7 REST controller
 │       │   ├── dto/                # Request / Response DTO'ları
-│       │   ├── entity/             # JPA entity'leri
+│       │   │   ├── request/        #   13 request DTO'su
+│       │   │   └── response/       #   10 response DTO'su
+│       │   ├── entity/             # 5 JPA entity'si
 │       │   ├── enums/              # ApplicationStatus, UserRole
 │       │   ├── exception/          # Tipli exception'lar + ErrorCode enum'u
 │       │   ├── handler/            # GlobalExceptionHandler
-│       │   ├── mapper/             # MapStruct mapper'ları
-│       │   ├── repository/         # JPA repository'leri ve Spesifikasyonlar
+│       │   ├── mapper/             # 5 MapStruct mapper'ı
+│       │   ├── repository/         # JPA repository'leri
+│       │   │   ├── specification/  #   Dinamik sorgu spesifikasyonları
+│       │   │   └── impl/           #   Özel repository implementasyonları
 │       │   ├── scheduler/          # Refresh token temizlik cron'u
-│       │   ├── security/           # JWT filtreleri ve güvenlik ayarları
-│       │   ├── service/            # İş mantığı ve validator'lar
-│       │   └── storage/            # Dosya depolama soyutlaması
+│       │   ├── security/           # JWT filter, config, handler'lar, UserDetails
+│       │   ├── service/            # Servis arayüzleri
+│       │   │   ├── impl/           #   8 servis implementasyonu
+│       │   │   └── validator/      #   Application & User validator'ları
+│       │   ├── storage/            # Dosya depolama soyutlaması
+│       │   └── validation/         # Özel @ValidPassword anotasyonu
 │       ├── src/main/resources/
-│       │   └── db/migration/       # Flyway migrasyon scriptleri
-│       └── Dockerfile
+│       │   ├── application.yaml
+│       │   └── db/migration/       # V1–V7 Flyway migrasyon scriptleri
+│       ├── src/test/               # JUnit 5 birim testleri
+│       ├── Dockerfile              # Çok aşamalı (Maven build + Temurin runtime)
+│       └── pom.xml
 ├── frontend/
 │   ├── src/
-│   │   ├── api/                    # Axios instance ve otomatik üretilen istemci
-│   │   ├── app/                    # Router, tema, provider'lar
-│   │   ├── components/             # Ortak UI bileşenleri
-│   │   ├── features/               # Domain odaklı özellik modülleri
-│   │   └── lib/                    # Yardımcı araçlar
-│   ├── Dockerfile
-│   └── nginx.conf
-├── docs/                           # Mimari diyagramlar ve ekran görüntüleri
-└── docker-compose.yml
+│   │   ├── api/
+│   │   │   ├── client.ts           # Axios instance + refresh interceptor
+│   │   │   ├── config.ts           # API config
+│   │   │   └── generated/          # OpenAPI'den üretilen TypeScript istemcisi
+│   │   ├── app/
+│   │   │   ├── router/             # React Router yapılandırması
+│   │   │   ├── providers/          # AppProviders, ThemeContext, QueryClient
+│   │   │   └── theme.ts            # MUI teması (aydınlık + karanlık token'lar)
+│   │   ├── components/             # Ortak: AppLayout, AppSidebar, AppHeader, StatusChip
+│   │   ├── features/
+│   │   │   ├── applications/       # Sayfalar, hook'lar, API, bileşenler, şemalar
+│   │   │   ├── attachments/        # API, hook'lar
+│   │   │   ├── auth/               # Context, guard'lar, sayfalar, şemalar
+│   │   │   ├── dashboard/          # Sayfalar, hook'lar, API
+│   │   │   ├── form-types/         # Sayfalar, hook'lar, API, bileşenler, şemalar
+│   │   │   ├── home/               # Ana sayfa
+│   │   │   ├── landing/            # Tanıtım sayfası
+│   │   │   ├── profile/            # Sayfalar, hook'lar, API, şemalar
+│   │   │   ├── reports/            # Sayfalar, hook'lar, API
+│   │   │   └── users/              # Sayfalar, hook'lar, API, bileşenler, şemalar
+│   │   └── lib/                    # auth-storage (sessionStorage sarmalayıcısı)
+│   ├── Dockerfile                  # Çok aşamalı (Node build + Nginx runtime)
+│   ├── nginx.conf                  # Reverse proxy + SPA fallback
+│   └── package.json
+├── docs/
+│   └── architecture/               # Diyagramlar, whiteboard, Excalidraw kaynağı
+├── docker-compose.yml
+├── .env.example
+└── README.md
 ```
 
 ---
@@ -770,23 +1510,78 @@ application-management-system/
 <a id="docker--deployment-tr"></a>
 ## 🐳 Docker & Dağıtım
 
-| Servis | İç Port | Amaç |
-|---|---|---|
-| `postgres` | 5432 | Veritabanı |
-| `backend` | 8080 | Spring Boot REST API |
-| `frontend` | 80 | SPA + Nginx Reverse Proxy |
+**3 container:**
 
-> [!TIP]
-> **Nginx Proxy Kuralları:** Nginx, React SPA uygulamasını sunar ve `/api/*`, `/v3/*`, ve `/swagger-ui/*` isteklerini backend container'ına yönlendirir.
+| Servis | Temel İmaj | İç Port | Amaç |
+|---|---|---|---|
+| `postgres` | `postgres:16` | 5432 | Veritabanı |
+| `backend` | Çok aşamalı (Maven → Temurin 21 JRE Alpine) | 8080 | Spring Boot REST API |
+| `frontend` | Çok aşamalı (Node 22 → Nginx 1.27 Alpine) | 80 | SPA + Reverse Proxy |
+
+```mermaid
+flowchart LR
+    Browser(["🌐 Tarayıcı :3000"])
+    Nginx["🧭 Nginx"]
+    Backend["⚙️ Spring Boot :8080"]
+    DB[("🗄️ PostgreSQL :5432")]
+    Vol1[("postgres_data")]
+    Vol2[("app_storage")]
+
+    Browser -->|"HTTP"| Nginx
+    Nginx -.->|"Statik + SPA fallback"| Browser
+    Nginx -->|"/api/* /v3/* /swagger-ui/*"| Backend
+    Backend --> DB
+    Backend --> Vol2
+    DB --> Vol1
+
+    classDef client fill:#E0F2FE,stroke:#0284C7,color:#0C4A6E,stroke-width:1px
+    classDef proxy fill:#FEF3C7,stroke:#D97706,color:#78350F,stroke-width:1px
+    classDef service fill:#DCFCE7,stroke:#16A34A,color:#14532D,stroke-width:1px
+    classDef data fill:#EDE9FE,stroke:#7C3AED,color:#4C1D95,stroke-width:1px
+
+    class Browser client
+    class Nginx proxy
+    class Backend service
+    class DB,Vol1,Vol2 data
+```
+
+> [!IMPORTANT]
+> **Nginx Proxy Kuralları:**
+> - `/` → SPA fallback (`try_files $uri $uri/ /index.html`)
+> - `/api/*` → `proxy_pass http://backend:8080`
+> - `/v3/*` → OpenAPI spec proxy
+> - `/swagger-ui/*` → Swagger UI proxy
+> - Statik varlıklar (JS, CSS, resim, font) → `expires 1y`, `Cache-Control: public, immutable`
+
+**Kalıcı volume'ler:** `postgres_data`, `app_storage`
+
+**Healthcheck:** PostgreSQL `pg_isready`. Backend yalnızca `condition: service_healthy` sağlandıktan sonra başlar.
 
 ---
 
 <a id="testing--quality-tr"></a>
-## 🧪 Test İşlemleri
+## 🧪 Test & Kalite
 
-- **Backend:** Validator'lar ve Spring Boot context yükleme için JUnit 5 birim testleri.
-- **Frontend:** TypeScript strict modu, ESLint doğrulaması.
-- **Araçlar:** Uçtan uca testler ve erişilebilirlik testleri için Playwright ve axe-core bağımlılıkları yüklenmiştir.
+### 🔬 Mevcut Testler
+
+| Test | Tip | Kapsam |
+|---|---|---|
+| `ApplicationManagementApplicationTests` | Spring Boot context testi | Uygulama context'inin doğru yüklendiğini doğrular |
+| `ApplicationValidatorTest` | JUnit 5 birim testi (parametreli) | Durum geçiş doğrulamaları: updatable, reviewable, approvable, cancellable |
+| `UserValidatorTest` | JUnit 5 birim testi | Aktif/pasif etme durum doğrulamaları |
+
+### 🧰 Mevcut Araçlar (kurulu, test dosyası yazılmamış)
+
+| Araç | Amaç | Durum |
+|---|---|---|
+| **Playwright** (`^1.62.1`) | Uçtan uca tarayıcı testi | Dev bağımlılığı kurulu; **test dosyası yok** |
+| **axe-core** (`^4.13.0`) | Erişilebilirlik denetimi | Dev bağımlılığı kurulu; **test dosyası yok** |
+| **ESLint** + eklentiler | Kod kalitesi lint'leme | Yapılandırılmış (`eslint.config.js`) |
+| **TypeScript strict** | Tip güvenliği | Vite build öncesi `tsc -b` çalışır |
+
+### 🚧 Derleme Zamanı Kalite Kontrolleri
+- `npm run build` = `tsc -b && vite build` (TypeScript kontrolü + üretim build'i)
+- `npm run lint` = ESLint doğrulaması
 
 ---
 
@@ -803,12 +1598,18 @@ cp .env.example .env
 docker compose up --build
 ```
 
-### 💻 Geliştirme Ortamı
+| URL | Amaç |
+|---|---|
+| `http://localhost:3000` | Frontend uygulaması |
+| `http://localhost:3000/swagger-ui/index.html` | API dokümantasyonu |
+
+### 💻 Geliştirme Kurulumu
 
 **Backend:**
 ```bash
 cd backend/application-management
 ./mvnw spring-boot:run
+# POSTGRES_HOST:POSTGRES_PORT üzerinde çalışan PostgreSQL gerektirir
 ```
 
 **Frontend:**
@@ -818,6 +1619,12 @@ npm install
 npm run dev
 ```
 
+| URL | Amaç |
+|---|---|
+| `http://localhost:5173` | Frontend dev server |
+| `http://localhost:8080` | Backend API |
+| `http://localhost:8080/swagger-ui.html` | Swagger UI (direkt) |
+
 ---
 
 <a id="environment-variables-tr"></a>
@@ -825,18 +1632,40 @@ npm run dev
 
 `.env.example` dosyasından:
 
-| Değişken | Amaç |
-|---|---|
-| `POSTGRES_DB` | Veritabanı adı |
-| `POSTGRES_USER` | Veritabanı kullanıcısı |
-| `POSTGRES_PASSWORD` | Veritabanı şifresi |
-| `JWT_SECRET` | JWT imzalama anahtarı |
-| `JWT_ACCESS_EXPIRATION` | Erişim jetonu TTL (ms) |
-| `JWT_REFRESH_EXPIRATION` | Yenileme jetonu TTL (ms) |
-| `ADMIN_EMAIL` | İlk admin e-postası |
-| `ADMIN_PASSWORD` | İlk admin şifresi |
+| Değişken | Amaç | Varsayılan / Not |
+|---|---|---|
+| `POSTGRES_DB` | Veritabanı adı | Zorunlu |
+| `POSTGRES_USER` | Veritabanı kullanıcısı | Zorunlu |
+| `POSTGRES_PASSWORD` | Veritabanı şifresi | 🔒 Zorunlu |
+| `POSTGRES_PORT` | Veritabanı portu | `5432` |
+| `POSTGRES_HOST` | Veritabanı host'u | `localhost` (dev) / `postgres` (Docker) |
+| `SERVER_PORT` | Backend server portu | `8080` |
+| `FRONTEND_PORT` | Frontend portu | `3000` |
+| `JWT_SECRET` | JWT imzalama anahtarı | 🔒 Zorunlu |
+| `JWT_ACCESS_EXPIRATION` | Erişim jetonu TTL (ms) | `900000` (15 dk) |
+| `JWT_REFRESH_EXPIRATION` | Yenileme jetonu TTL (ms) | `604800000` (7 gün) |
+| `JWT_ISSUER` | JWT issuer claim'i | `application-management-system` |
+| `ADMIN_EMAIL` | İlk admin e-postası | 🔒 Zorunlu |
+| `ADMIN_PASSWORD` | İlk admin şifresi | 🔒 Zorunlu |
+| `ADMIN_NAME` | Admin adı | `System` |
+| `ADMIN_SURNAME` | Admin soyadı | `Administrator` |
 
-*(Port ve host isimleri için ek değişkenler de mevcuttur.)*
+---
+
+<a id="screenshots-tr"></a>
+## 📸 Ekran Görüntüleri
+
+| 🏠 Landing | 🔐 Kimlik Doğrulama |
+|---|---|
+| <img src="docs/screenshots/landing.png" width="400"/> | <img src="docs/screenshots/login.png" width="400"/><br/><img src="docs/screenshots/register.png" width="400"/> |
+
+| 📝 Başvurular | 🛠️ Yönetim |
+|---|---|
+| <img src="docs/screenshots/my-applications.png" width="400"/><br/><img src="docs/screenshots/create-application.png" width="400"/><br/><img src="docs/screenshots/application-detail.png" width="400"/> | <img src="docs/screenshots/all-applications.png" width="400"/><br/><img src="docs/screenshots/users.png" width="400"/><br/><img src="docs/screenshots/form-types.png" width="400"/> |
+
+| 👤 Profil | |
+|---|---|
+| <img src="docs/screenshots/profile.png" width="400"/> | |
 
 ---
 
@@ -844,28 +1673,40 @@ npm run dev
 ## 🗺️ Yol Haritası
 
 **✅ Tamamlanan:**
-- Backend REST API ve JWT kimlik doğrulaması
-- Durum geçişlerini içeren başvuru iş akışı
-- Dosya eki yönetimi
-- Yönetici gösterge paneli ve raporlar
-- Özel MUI temasına sahip React frontend
-- Docker Compose ile dağıtım
+- [x] Backend REST API (Spring Boot 3.5)
+- [x] Refresh token rotasyonuyla JWT kimlik doğrulama
+- [x] Rol tabanlı yetkilendirme (ADMIN, PERSONNEL)
+- [x] 5 durumlu ve zorunlu geçişli başvuru iş akışı
+- [x] Dosya eki yönetimi
+- [x] KPI kartlarıyla admin gösterge paneli
+- [x] Tarih/durum/form tipi filtreli raporlar
+- [x] Kullanıcı ve form tipi yönetimi (CRUD, aktif/pasif durumlar)
+- [x] OpenAPI dokümantasyonu & TypeScript istemci üretimi
+- [x] Özellik bazlı mimariye sahip React frontend
+- [x] Özel MUI temasıyla Karanlık/Aydınlık mod
+- [x] Nginx reverse proxy'li Docker Compose dağıtımı
+- [x] Flyway veritabanı migrasyonları (7 sürüm)
+- [x] Zamanlanmış jeton temizliği ve admin otomatik başlatma
+- [x] Landing page
 
 **⏳ Planlanan:**
-- Ayrı denetim günlüğü/geçmiş alt sistemi
-- Excel / PDF dışa aktarma
-- E-posta bildirimleri
-- CI/CD pipeline'ı
-- Uçtan uca test paketi (Playwright)
+- [ ] Ayrı denetim günlüğü/geçmiş alt sistemi
+- [ ] Excel / PDF export
+- [ ] E-posta bildirimleri
+- [ ] CI/CD pipeline'ı
+- [ ] Uçtan uca test paketi (Playwright)
+- [ ] Erişilebilirlik test paketi (axe-core)
 
 ---
 
 <a id="future-improvements-tr"></a>
 ## 🔮 Gelecek İyileştirmeler
-- 🔔 Uygulama İçi Bildirim Merkezi
-- 💬 Başvuru Yorumları/Notları
-- 🌍 Çoklu Dil Desteği (i18n)
-- ⏱️ API Hız Sınırlama (Rate Limiting)
+- 🔔 **Uygulama İçi Bildirim Merkezi**
+- 💬 **Başvuru Yorumları/Notları**
+- 🌍 **Çoklu Dil Desteği (i18n)**
+- ⏱️ **API Hız Sınırlama (Rate Limiting)**
+- ☸️ **Kubernetes Dağıtım Manifest'leri**
+- 🧪 **Daha Geniş Entegrasyon Test Kapsamı**
 
 ---
 
@@ -877,5 +1718,5 @@ Spring Boot ve React ile geliştirilmiş Kurumsal Başvuru ve Form Yönetim Sist
 
 <a id="license-tr"></a>
 ## 📄 Lisans
-Geliştirici — [Eray Yalman] (Staj Projesi, Cybersoft)
-Bu proje eğitim/staj amaçlı geliştirilmiştir.
+**Geliştirici — [Eray Yalman]   (Staj Projesi, Cybersoft)**
+**Bu proje eğitim/staj amaçlı geliştirilmiştir.**
