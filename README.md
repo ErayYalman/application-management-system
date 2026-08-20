@@ -70,25 +70,63 @@
 
 Leave, training, advance, material, and assignment requests within organizations are often managed via scattered email threads, Excel spreadsheets, or verbal communication. This traditional approach lacks centralized tracking and makes it difficult to maintain a clear audit trail.
 
-The **Application Management System** is a comprehensive web-based platform where personnel can submit and track applications, while administrators can review, approve or reject, and generate reports on them.
-
-The system supports two primary roles: `PERSONNEL` (applicants) and `ADMIN` (reviewers/managers). It provides a full-featured workflow supporting 5 seeded form types, a 5-status lifecycle, file attachments, and a comprehensive analytics dashboard.
+The **Application Management System** is a web-based platform where personnel can submit and track applications, while administrators can review, approve or reject, and generate reports on them. It provides a workflow supporting various form types, a status lifecycle, file attachments, and an analytics dashboard.
 
 ---
 
 <a id="why-this-project"></a>
 ## 💡 Why This Project?
 
-| 🔴 Problem | 🟢 Solution |
-|---|---|
-| Manual email/verbal requests | Centralized digital application workflow |
-| Excel/spreadsheet tracking | Searchable, filterable, paginated data grids |
-| Unclear approval status | Explicit status workflow (`NEW` → `IN_REVIEW` → `APPROVED` / `REJECTED`) |
-| Incomplete request history | Timestamped records and explicit applicant ownership (dedicated audit logging subsystem is planned) |
-| Scattered file attachments | Per-application file upload, download, and management |
-| Unauthorized access risks | JWT authentication + role-based authorization |
-| Manual report compilation | Automated dashboard KPIs and filtered reports |
-| Inconsistent deployment | Containerized Docker Compose stack with Nginx reverse proxy |
+- Replaces scattered email/Excel requests with a centralized digital workflow.
+- Provides a clear audit trail with an explicit approval lifecycle (`NEW` → `IN_REVIEW` → `APPROVED` / `REJECTED`).
+- Secures application data using role-based JWT authentication.
+- Automates reporting with dashboard KPIs and analytical summaries.
+- Manages file attachments per application.
+
+---
+
+
+<a id="system-at-a-glance"></a>
+## 🔭 System at a Glance
+
+```mermaid
+flowchart TD
+    Browser(["🌐 Browser"])
+    Nginx["🧭 Nginx Container<br/>Reverse Proxy + SPA"]
+    Backend["⚙️ Spring Boot Container<br/>REST API"]
+    DB[("🗄️ PostgreSQL Container")]
+    Storage[("📁 Persistent File Storage")]
+
+    Browser -->|"HTTP request"| Nginx
+    Nginx -.->|"Static / SPA response"| Browser
+    Nginx -->|"/api/*"| Backend
+    Nginx -->|"/swagger-ui/*"| Backend
+    Backend --> DB
+    Backend --> Storage
+
+    classDef client fill:#E0F2FE,stroke:#0284C7,color:#0C4A6E,stroke-width:1px
+    classDef proxy fill:#FEF3C7,stroke:#D97706,color:#78350F,stroke-width:1px
+    classDef service fill:#DCFCE7,stroke:#16A34A,color:#14532D,stroke-width:1px
+    classDef data fill:#EDE9FE,stroke:#7C3AED,color:#4C1D95,stroke-width:1px
+
+    class Browser client
+    class Nginx proxy
+    class Backend service
+    class DB,Storage data
+```
+
+> All three services run as Docker containers orchestrated via Docker Compose.
+
+---
+
+<a id="system-architecture"></a>
+## 🏗️ System Architecture
+
+<div align="center">
+  <img src="docs/architecture/system-design-whiteboard.png" alt="System Architecture" width="100%"/>
+</div>
+
+> System design whiteboard showing the overall architecture, entity relationships, and request/response flow. ([Source Excalidraw file](docs/architecture/system-design.excalidraw))
 
 ---
 
@@ -156,50 +194,6 @@ The system supports two primary roles: `PERSONNEL` (applicants) and `ADMIN` (rev
 - Inter font family via `@fontsource/inter`
 - Landing page
 - Automatic admin user initialization on first startup (`AdminInitializer`)
-
----
-
-<a id="system-at-a-glance"></a>
-## 🔭 System at a Glance
-
-```mermaid
-flowchart TD
-    Browser(["🌐 Browser"])
-    Nginx["🧭 Nginx Container<br/>Reverse Proxy + SPA"]
-    Backend["⚙️ Spring Boot Container<br/>REST API"]
-    DB[("🗄️ PostgreSQL Container")]
-    Storage[("📁 Persistent File Storage")]
-
-    Browser -->|"HTTP request"| Nginx
-    Nginx -.->|"Static / SPA response"| Browser
-    Nginx -->|"/api/*"| Backend
-    Nginx -->|"/swagger-ui/*"| Backend
-    Backend --> DB
-    Backend --> Storage
-
-    classDef client fill:#E0F2FE,stroke:#0284C7,color:#0C4A6E,stroke-width:1px
-    classDef proxy fill:#FEF3C7,stroke:#D97706,color:#78350F,stroke-width:1px
-    classDef service fill:#DCFCE7,stroke:#16A34A,color:#14532D,stroke-width:1px
-    classDef data fill:#EDE9FE,stroke:#7C3AED,color:#4C1D95,stroke-width:1px
-
-    class Browser client
-    class Nginx proxy
-    class Backend service
-    class DB,Storage data
-```
-
-> All three services run as Docker containers orchestrated via Docker Compose.
-
----
-
-<a id="system-architecture"></a>
-## 🏗️ System Architecture
-
-<div align="center">
-  <img src="docs/architecture/system-design-whiteboard.png" alt="System Architecture" width="100%"/>
-</div>
-
-> System design whiteboard showing the overall architecture, entity relationships, and request/response flow. ([Source Excalidraw file](docs/architecture/system-design.excalidraw))
 
 ---
 
@@ -932,25 +926,62 @@ This project was developed for educational/internship purposes.
 
 Kurumlarda izin, eğitim, avans, malzeme ve görevlendirme talepleri çoğunlukla dağınık e-posta yazışmaları, Excel tabloları veya sözlü iletişim yoluyla yönetilir. Bu geleneksel yaklaşım merkezi bir takip imkânı sunmaz ve net bir denetim izi (audit trail) tutmayı zorlaştırır.
 
-**Application Management System (Uygulama Yönetim Sistemi)**, personelin başvuru oluşturup takip edebildiği, yöneticilerin ise bu başvuruları inceleyip onaylayabildiği/reddedebildiği ve raporlayabildiği kapsamlı bir web tabanlı platformdur.
-
-Sistem iki temel rol destekler: `PERSONNEL` (başvuru sahipleri) ve `ADMIN` (inceleyen/yöneten kullanıcılar). Sistem; 5 önceden tanımlı (seeded) form tipi, 5 durumlu bir yaşam döngüsü, dosya ekleri ve kapsamlı bir analitik gösterge panosu sunan eksiksiz bir iş akışı sağlar.
+**Uygulama Yönetim Sistemi**, personelin başvuru oluşturup takip edebildiği, yöneticilerin ise bu başvuruları inceleyip onaylayabildiği/reddedebildiği ve raporlayabildiği web tabanlı bir platformdur. Çeşitli form tiplerini, durum yaşam döngüsünü, dosya eklerini ve analitik gösterge panelini destekleyen bir iş akışı sunar.
 
 ---
 
 <a id="why-this-project-tr"></a>
 ## 💡 Neden Bu Proje?
 
-| 🔴 Problem | 🟢 Çözüm |
-|---|---|
-| Manuel e-posta/sözlü talepler | Merkezi dijital başvuru iş akışı |
-| Excel/tablo ile takip | Aranabilir, filtrelenebilir, sayfalanabilir veri tabloları |
-| Belirsiz onay durumu | Açık durum iş akışı (`NEW` → `IN_REVIEW` → `APPROVED` / `REJECTED`) |
-| Eksik talep geçmişi | Zaman damgalı kayıtlar ve açık başvuru sahibi bilgisi (ayrı bir denetim günlüğü alt sistemi planlanıyor) |
-| Dağınık dosya ekleri | Başvuru bazlı dosya yükleme, indirme ve yönetim |
-| Yetkisiz erişim riskleri | JWT kimlik doğrulama + rol tabanlı yetkilendirme |
-| Manuel rapor derleme | Otomatik gösterge panosu KPI'ları ve filtrelenmiş raporlar |
-| Tutarsız dağıtım | Nginx reverse proxy içeren container'lı Docker Compose yığını |
+- Dağınık e-posta/Excel taleplerini merkezi bir dijital iş akışıyla değiştirir.
+- Açık bir onay yaşam döngüsüyle (`NEW` → `IN_REVIEW` → `APPROVED` / `REJECTED`) net bir denetim izi sağlar.
+- Rol tabanlı JWT kimlik doğrulaması kullanarak başvuru verilerini güvence altına alır.
+- Gösterge paneli KPI'ları ve analitik özetlerle raporlamayı otomatikleştirir.
+- Başvurulara ait dosya eklerinin yönetimini kolaylaştırır.
+
+---
+
+<a id="system-at-a-glance-tr"></a>
+## 🔭 Sistem Genel Bakış
+
+```mermaid
+flowchart TD
+    Browser(["🌐 Tarayıcı"])
+    Nginx["🧭 Nginx Container<br/>Reverse Proxy + SPA"]
+    Backend["⚙️ Spring Boot Container<br/>REST API"]
+    DB[("🗄️ PostgreSQL Container")]
+    Storage[("📁 Kalıcı Dosya Depolama")]
+
+    Browser -->|"HTTP isteği"| Nginx
+    Nginx -.->|"Statik / SPA yanıtı"| Browser
+    Nginx -->|"/api/*"| Backend
+    Nginx -->|"/swagger-ui/*"| Backend
+    Backend --> DB
+    Backend --> Storage
+
+    classDef client fill:#E0F2FE,stroke:#0284C7,color:#0C4A6E,stroke-width:1px
+    classDef proxy fill:#FEF3C7,stroke:#D97706,color:#78350F,stroke-width:1px
+    classDef service fill:#DCFCE7,stroke:#16A34A,color:#14532D,stroke-width:1px
+    classDef data fill:#EDE9FE,stroke:#7C3AED,color:#4C1D95,stroke-width:1px
+
+    class Browser client
+    class Nginx proxy
+    class Backend service
+    class DB,Storage data
+```
+
+> Her üç servis de Docker Compose ile orkestre edilen Docker container'ları olarak çalışır.
+
+---
+
+<a id="system-architecture-tr"></a>
+## 🏗️ Sistem Mimarisi
+
+<div align="center">
+  <img src="docs/architecture/system-design-whiteboard.png" alt="System Architecture" width="100%"/>
+</div>
+
+> Genel mimariyi, varlık ilişkilerini ve istek/yanıt akışını gösteren sistem tasarım beyaz tahtası. ([Kaynak Excalidraw dosyası](docs/architecture/system-design.excalidraw))
 
 ---
 
@@ -1018,50 +1049,6 @@ Sistem iki temel rol destekler: `PERSONNEL` (başvuru sahipleri) ve `ADMIN` (inc
 - `@fontsource/inter` ile Inter font ailesi
 - Landing page (tanıtım sayfası)
 - İlk başlatmada otomatik admin kullanıcı oluşturma (`AdminInitializer`)
-
----
-
-<a id="system-at-a-glance-tr"></a>
-## 🔭 Sistem Genel Bakış
-
-```mermaid
-flowchart TD
-    Browser(["🌐 Tarayıcı"])
-    Nginx["🧭 Nginx Container<br/>Reverse Proxy + SPA"]
-    Backend["⚙️ Spring Boot Container<br/>REST API"]
-    DB[("🗄️ PostgreSQL Container")]
-    Storage[("📁 Kalıcı Dosya Depolama")]
-
-    Browser -->|"HTTP isteği"| Nginx
-    Nginx -.->|"Statik / SPA yanıtı"| Browser
-    Nginx -->|"/api/*"| Backend
-    Nginx -->|"/swagger-ui/*"| Backend
-    Backend --> DB
-    Backend --> Storage
-
-    classDef client fill:#E0F2FE,stroke:#0284C7,color:#0C4A6E,stroke-width:1px
-    classDef proxy fill:#FEF3C7,stroke:#D97706,color:#78350F,stroke-width:1px
-    classDef service fill:#DCFCE7,stroke:#16A34A,color:#14532D,stroke-width:1px
-    classDef data fill:#EDE9FE,stroke:#7C3AED,color:#4C1D95,stroke-width:1px
-
-    class Browser client
-    class Nginx proxy
-    class Backend service
-    class DB,Storage data
-```
-
-> Her üç servis de Docker Compose ile orkestre edilen Docker container'ları olarak çalışır.
-
----
-
-<a id="system-architecture-tr"></a>
-## 🏗️ Sistem Mimarisi
-
-<div align="center">
-  <img src="docs/architecture/system-design-whiteboard.png" alt="System Architecture" width="100%"/>
-</div>
-
-> Genel mimariyi, varlık ilişkilerini ve istek/yanıt akışını gösteren sistem tasarım beyaz tahtası. ([Kaynak Excalidraw dosyası](docs/architecture/system-design.excalidraw))
 
 ---
 
