@@ -23,6 +23,47 @@ import type { RequestArgs } from './base';
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS, BaseAPI, RequiredError, operationServerMap } from './base';
 
+export interface ApplicationAuditLogResponse {
+    'id'?: string;
+    'applicationId'?: string;
+    'actorId'?: string;
+    'actorName'?: string;
+    'actorSurname'?: string;
+    'actorEmail'?: string;
+    'action'?: ApplicationAuditLogResponseActionEnum;
+    'oldStatus'?: ApplicationAuditLogResponseOldStatusEnum;
+    'newStatus'?: ApplicationAuditLogResponseNewStatusEnum;
+    'description'?: string;
+    'createdAt'?: string;
+}
+
+export const ApplicationAuditLogResponseActionEnum = {
+    Created: 'CREATED',
+    Updated: 'UPDATED',
+    StatusChanged: 'STATUS_CHANGED',
+    Deleted: 'DELETED',
+} as const;
+
+export type ApplicationAuditLogResponseActionEnum = typeof ApplicationAuditLogResponseActionEnum[keyof typeof ApplicationAuditLogResponseActionEnum];
+export const ApplicationAuditLogResponseOldStatusEnum = {
+    New: 'NEW',
+    InReview: 'IN_REVIEW',
+    Approved: 'APPROVED',
+    Rejected: 'REJECTED',
+    Cancelled: 'CANCELLED',
+} as const;
+
+export type ApplicationAuditLogResponseOldStatusEnum = typeof ApplicationAuditLogResponseOldStatusEnum[keyof typeof ApplicationAuditLogResponseOldStatusEnum];
+export const ApplicationAuditLogResponseNewStatusEnum = {
+    New: 'NEW',
+    InReview: 'IN_REVIEW',
+    Approved: 'APPROVED',
+    Rejected: 'REJECTED',
+    Cancelled: 'CANCELLED',
+} as const;
+
+export type ApplicationAuditLogResponseNewStatusEnum = typeof ApplicationAuditLogResponseNewStatusEnum[keyof typeof ApplicationAuditLogResponseNewStatusEnum];
+
 export interface ApplicationFormTypeReport {
     'formTypeId'?: string;
     'formTypeName'?: string;
@@ -126,27 +167,27 @@ export interface LoginResponse {
 export interface PageApplicationResponse {
     'totalElements'?: number;
     'totalPages'?: number;
-    'first'?: boolean;
-    'last'?: boolean;
+    'pageable'?: PageableObject;
+    'numberOfElements'?: number;
     'size'?: number;
     'content'?: Array<ApplicationResponse>;
     'number'?: number;
     'sort'?: SortObject;
-    'numberOfElements'?: number;
-    'pageable'?: PageableObject;
+    'first'?: boolean;
+    'last'?: boolean;
     'empty'?: boolean;
 }
 export interface PageUserResponse {
     'totalElements'?: number;
     'totalPages'?: number;
-    'first'?: boolean;
-    'last'?: boolean;
+    'pageable'?: PageableObject;
+    'numberOfElements'?: number;
     'size'?: number;
     'content'?: Array<UserResponse>;
     'number'?: number;
     'sort'?: SortObject;
-    'numberOfElements'?: number;
-    'pageable'?: PageableObject;
+    'first'?: boolean;
+    'last'?: boolean;
     'empty'?: boolean;
 }
 export interface Pageable {
@@ -155,12 +196,12 @@ export interface Pageable {
     'sort'?: Array<string>;
 }
 export interface PageableObject {
-    'offset'?: number;
-    'sort'?: SortObject;
-    'paged'?: boolean;
     'pageNumber'?: number;
+    'paged'?: boolean;
     'pageSize'?: number;
     'unpaged'?: boolean;
+    'offset'?: number;
+    'sort'?: SortObject;
 }
 export interface RefreshTokenRequest {
     'refreshToken': string;
@@ -172,9 +213,9 @@ export interface RegisterRequest {
     'password': string;
 }
 export interface SortObject {
-    'empty'?: boolean;
     'sorted'?: boolean;
     'unsorted'?: boolean;
+    'empty'?: boolean;
 }
 export interface UpdateApplicationRequest {
     'title': string;
@@ -464,6 +505,43 @@ export const ApplicationFormControllerApiAxiosParamCreator = function (configura
         },
         /**
          * 
+         * @param {string} applicationId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getHistory: async (applicationId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'applicationId' is not null or undefined
+            assertParamExists('getHistory', 'applicationId', applicationId)
+            const localVarPath = `/api/v1/applications/{applicationId}/history`
+                .replace('{applicationId}', encodeURIComponent(String(applicationId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication BearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Accept'] = '*/*';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @param {ApplicationSearchRequest} request 
          * @param {Pageable} pageable 
          * @param {*} [options] Override http request option.
@@ -713,6 +791,18 @@ export const ApplicationFormControllerApiFp = function(configuration?: Configura
         },
         /**
          * 
+         * @param {string} applicationId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getHistory(applicationId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<ApplicationAuditLogResponse>>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getHistory(applicationId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ApplicationFormControllerApi.getHistory']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
          * @param {ApplicationSearchRequest} request 
          * @param {Pageable} pageable 
          * @param {*} [options] Override http request option.
@@ -827,6 +917,15 @@ export const ApplicationFormControllerApiFactory = function (configuration?: Con
         },
         /**
          * 
+         * @param {string} applicationId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getHistory(applicationId: string, options?: RawAxiosRequestConfig): AxiosPromise<Array<ApplicationAuditLogResponse>> {
+            return localVarFp.getHistory(applicationId, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
          * @param {ApplicationSearchRequest} request 
          * @param {Pageable} pageable 
          * @param {*} [options] Override http request option.
@@ -929,6 +1028,16 @@ export class ApplicationFormControllerApi extends BaseAPI {
      */
     public getById1(applicationId: string, options?: RawAxiosRequestConfig) {
         return ApplicationFormControllerApiFp(this.configuration).getById1(applicationId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {string} applicationId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public getHistory(applicationId: string, options?: RawAxiosRequestConfig) {
+        return ApplicationFormControllerApiFp(this.configuration).getHistory(applicationId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

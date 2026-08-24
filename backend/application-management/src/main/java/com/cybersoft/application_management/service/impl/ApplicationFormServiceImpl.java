@@ -1,5 +1,6 @@
 package com.cybersoft.application_management.service.impl;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.data.domain.Page;
@@ -11,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.cybersoft.application_management.dto.request.ApplicationSearchRequest;
 import com.cybersoft.application_management.dto.request.CreateApplicationFormRequest;
 import com.cybersoft.application_management.dto.request.UpdateApplicationRequest;
+import com.cybersoft.application_management.dto.response.ApplicationAuditLogResponse;
 import com.cybersoft.application_management.dto.response.ApplicationResponse;
 import com.cybersoft.application_management.entity.ApplicationForm;
 import com.cybersoft.application_management.entity.FormType;
@@ -26,8 +28,10 @@ import com.cybersoft.application_management.repository.FormTypeRepository;
 import com.cybersoft.application_management.repository.UserRepository;
 import com.cybersoft.application_management.repository.specification.ApplicationFormSpecification;
 import com.cybersoft.application_management.security.userdetails.SecurityUtils;
+import com.cybersoft.application_management.service.ApplicationAuditLogService;
 import com.cybersoft.application_management.service.ApplicationFormService;
 import com.cybersoft.application_management.service.validator.ApplicationValidator;
+import com.cybersoft.application_management.enums.UserRole;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -37,230 +41,283 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Transactional
 public class ApplicationFormServiceImpl implements ApplicationFormService {
-    private final ApplicationFormRepository applicationFormRepository;
-    private final UserRepository userRepository;
-    private final FormTypeRepository formTypeRepository;
-    private final ApplicationFormMapper applicationFormMapper;
-    private final ApplicationValidator applicationValidator;
+        private final ApplicationFormRepository applicationFormRepository;
+        private final UserRepository userRepository;
+        private final FormTypeRepository formTypeRepository;
+        private final ApplicationFormMapper applicationFormMapper;
+        private final ApplicationValidator applicationValidator;
+        private final ApplicationAuditLogService applicationAuditLogService;
 
-    private User getCurrentUser() {
+        private User getCurrentUser() {
 
-        UUID currentUserId = SecurityUtils.getCurrentUserId();
+                UUID currentUserId = SecurityUtils.getCurrentUserId();
 
-        return userRepository.findById(currentUserId)
-                .orElseThrow(() -> new UserNotFoundException(currentUserId));
-    }
-
-    private FormType getFormTypeOrThrow(UUID formTypeId) {
-
-        return formTypeRepository.findById(formTypeId)
-                .orElseThrow(() -> new FormTypeNotFoundException(formTypeId));
-    }
-
-    private ApplicationForm getApplicationOrThrow(UUID applicationId) {
-
-        return applicationFormRepository.findOne(
-                Specification.allOf(
-                        ApplicationFormSpecification.fetchDetails(),
-                        ApplicationFormSpecification.hasId(applicationId)))
-                .orElseThrow(() -> new ApplicationFormNotFoundException(applicationId));
-    }
-
-    private void initializeNewApplication(
-            ApplicationForm application,
-            User user,
-            FormType formType) {
-
-        application.setUser(user);
-        application.setFormType(formType);
-        application.setStatus(ApplicationStatus.NEW);
-    }
-
-    @Override
-    public ApplicationResponse create(CreateApplicationFormRequest request) {
-
-        User user = getCurrentUser();
-
-        FormType formType = getFormTypeOrThrow(request.getFormTypeId());
-
-        if (!formType.isActive()) {
-            throw new InactiveFormTypeException("Form type with ID " + formType.getId() + " is inactive.");
+                return userRepository.findById(currentUserId)
+                                .orElseThrow(() -> new UserNotFoundException(currentUserId));
         }
 
-        ApplicationForm application = applicationFormMapper.toEntity(request);
-        initializeNewApplication(application, user, formType);
+        private FormType getFormTypeOrThrow(UUID formTypeId) {
 
-        ApplicationForm savedApplication = applicationFormRepository.save(application);
-
-        log.info(
-                "Application created. Id: {}, UserId: {}, FormTypeId: {}",
-                savedApplication.getId(),
-                user.getId(),
-                formType.getId());
-
-        return applicationFormMapper.toResponse(savedApplication);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public ApplicationResponse getById(UUID applicationId) {
-
-        ApplicationForm application = getApplicationOrThrow(applicationId);
-
-        applicationValidator.validateAccess(application);
-
-        return applicationFormMapper.toResponse(application);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public Page<ApplicationResponse> getMyApplications(
-            ApplicationSearchRequest request,
-            Pageable pageable) {
-
-        UUID currentUserId = SecurityUtils.getCurrentUserId();
-
-        Specification<ApplicationForm> specification = Specification.allOf(
-                ApplicationFormSpecification.fetchDetails(),
-                ApplicationFormSpecification.build(request, currentUserId));    
-
-        Page<ApplicationForm> applications = applicationFormRepository.findAll(
-                specification,
-                pageable);
-
-        return applications.map(
-                applicationFormMapper::toResponse);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public Page<ApplicationResponse> getAllApplications(
-            ApplicationSearchRequest request,
-            Pageable pageable) {
-
-        Specification<ApplicationForm> specification = Specification.allOf(
-                ApplicationFormSpecification.fetchDetails(),
-                ApplicationFormSpecification.build(request));
-
-        Page<ApplicationForm> applications = applicationFormRepository.findAll(
-                specification,
-                pageable);
-
-        return applications.map(
-                applicationFormMapper::toResponse);
-    }
-
-    @Override
-    public ApplicationResponse updateApplicationForm(UUID applicationFormId, UpdateApplicationRequest request) {
-        ApplicationForm applicationForm = getApplicationOrThrow(applicationFormId);
-
-        applicationValidator.validateAccess(applicationForm);
-
-        applicationValidator.validateUpdatable(applicationForm);
-
-        FormType formType = getFormTypeOrThrow(request.getFormTypeId());
-
-        if (!formType.isActive()) {
-            throw new InactiveFormTypeException(
-                    "Form type is inactive");
+                return formTypeRepository.findById(formTypeId)
+                                .orElseThrow(() -> new FormTypeNotFoundException(formTypeId));
         }
 
-        applicationFormMapper.updateEntity(
-                request,
-                applicationForm);
+        private ApplicationForm getApplicationOrThrow(UUID applicationId) {
 
-        applicationForm.setFormType(formType);
+                return applicationFormRepository.findOne(
+                                Specification.allOf(
+                                                ApplicationFormSpecification.fetchDetails(),
+                                                ApplicationFormSpecification.hasId(applicationId)))
+                                .orElseThrow(() -> new ApplicationFormNotFoundException(applicationId));
+        }
 
-        ApplicationForm updatedApplicationForm = applicationFormRepository.save(applicationForm);
+        private void initializeNewApplication(
+                        ApplicationForm application,
+                        User user,
+                        FormType formType) {
 
-        log.info(
-                "Application updated. Id: {}, UserId: {}, FormTypeId: {}",
-                updatedApplicationForm.getId(),
-                updatedApplicationForm.getUser().getId(),
-                formType.getId());
+                application.setUser(user);
+                application.setFormType(formType);
+                application.setStatus(ApplicationStatus.NEW);
+        }
 
-        return applicationFormMapper.toResponse(
-                updatedApplicationForm);
-    }
+        @Override
+        public ApplicationResponse create(CreateApplicationFormRequest request) {
 
-    @Override
-    public void deleteApplicationForm(UUID applicationFormId) {
-        ApplicationForm applicationForm = getApplicationOrThrow(applicationFormId);
+                User user = getCurrentUser();
 
-        applicationValidator.validateAccess(applicationForm);
+                FormType formType = getFormTypeOrThrow(request.getFormTypeId());
 
-        applicationValidator.validateDeletable(applicationForm);
+                if (!formType.isActive()) {
+                        throw new InactiveFormTypeException("Form type with ID " + formType.getId() + " is inactive.");
+                }
 
-        applicationFormRepository.delete(applicationForm);
+                ApplicationForm application = applicationFormMapper.toEntity(request);
+                initializeNewApplication(application, user, formType);
 
-        log.info(
-                "Application deleted. Id: {}, UserId: {}, FormTypeId: {}",
-                applicationForm.getId(),
-                applicationForm.getUser().getId(),
-                applicationForm.getFormType().getId());
-    }
+                ApplicationForm savedApplication = applicationFormRepository.save(application);
 
-    @Override
-    public ApplicationResponse approveApplication(UUID applicationId) {
-        ApplicationForm applicationForm = getApplicationOrThrow(applicationId);
-        applicationValidator.validateApprovable(applicationForm);
-        applicationForm.setStatus(ApplicationStatus.APPROVED);
-        ApplicationForm savedApplicationForm = applicationFormRepository.save(applicationForm);
+                applicationAuditLogService.logCreated(savedApplication.getId(), user);
 
-        log.info(
-                "Application approved. Id: {}, UserId: {}",
-                savedApplicationForm.getId(),
-                savedApplicationForm.getUser().getId());
+                log.info(
+                                "Application created. Id: {}, UserId: {}, FormTypeId: {}",
+                                savedApplication.getId(),
+                                user.getId(),
+                                formType.getId());
 
-        return applicationFormMapper.toResponse(
-                savedApplicationForm);
-    }
+                return applicationFormMapper.toResponse(savedApplication);
+        }
 
-    @Override
-    public ApplicationResponse rejectApplication(UUID applicationId) {
-        ApplicationForm applicationForm = getApplicationOrThrow(applicationId);
-        applicationValidator.validateRejectable(applicationForm);
-        applicationForm.setStatus(ApplicationStatus.REJECTED);
-        ApplicationForm savedApplicationForm = applicationFormRepository.save(applicationForm);
+        @Override
+        @Transactional(readOnly = true)
+        public ApplicationResponse getById(UUID applicationId) {
 
-        log.info(
-                "Application rejected. Id: {}, UserId: {}",
-                savedApplicationForm.getId(),
-                savedApplicationForm.getUser().getId());
+                ApplicationForm application = getApplicationOrThrow(applicationId);
 
-        return applicationFormMapper.toResponse(
-                savedApplicationForm);
-    }
+                applicationValidator.validateAccess(application);
 
-    @Override
-    public ApplicationResponse cancelApplication(UUID applicationId) {
-        ApplicationForm applicationForm = getApplicationOrThrow(applicationId);
-        applicationValidator.validateAccess(applicationForm);
-        applicationValidator.validateCancellable(applicationForm);
-        applicationForm.setStatus(ApplicationStatus.CANCELLED);
-        ApplicationForm savedApplicationForm = applicationFormRepository.save(applicationForm);
-        log.info(
-                "Application cancelled. Id: {}, UserId: {}",
-                savedApplicationForm.getId(),
-                savedApplicationForm.getUser().getId());
+                return applicationFormMapper.toResponse(application);
+        }
 
-        return applicationFormMapper.toResponse(
-                savedApplicationForm);
-    }
+        @Override
+        @Transactional(readOnly = true)
+        public Page<ApplicationResponse> getMyApplications(
+                        ApplicationSearchRequest request,
+                        Pageable pageable) {
 
-    @Override
-    public ApplicationResponse moveToReview(UUID applicationId) {
-        ApplicationForm applicationForm = getApplicationOrThrow(applicationId);
-        applicationValidator.validateReviewable(applicationForm);
-        applicationForm.setStatus(ApplicationStatus.IN_REVIEW);
-        ApplicationForm savedApplicationForm = applicationFormRepository.save(applicationForm);
-        log.info(
-                "Application moved to review. Id: {}, UserId: {}",
-                savedApplicationForm.getId(),
-                savedApplicationForm.getUser().getId());
+                UUID currentUserId = SecurityUtils.getCurrentUserId();
 
-        return applicationFormMapper.toResponse(
-                savedApplicationForm);
-    }
+                Specification<ApplicationForm> specification = Specification.allOf(
+                                ApplicationFormSpecification.fetchDetails(),
+                                ApplicationFormSpecification.build(request, currentUserId));
+
+                Page<ApplicationForm> applications = applicationFormRepository.findAll(
+                                specification,
+                                pageable);
+
+                return applications.map(
+                                applicationFormMapper::toResponse);
+        }
+
+        @Override
+        @Transactional(readOnly = true)
+        public Page<ApplicationResponse> getAllApplications(
+                        ApplicationSearchRequest request,
+                        Pageable pageable) {
+
+                Specification<ApplicationForm> specification = Specification.allOf(
+                                ApplicationFormSpecification.fetchDetails(),
+                                ApplicationFormSpecification.build(request));
+
+                Page<ApplicationForm> applications = applicationFormRepository.findAll(
+                                specification,
+                                pageable);
+
+                return applications.map(
+                                applicationFormMapper::toResponse);
+        }
+
+        @Override
+        public ApplicationResponse updateApplicationForm(UUID applicationFormId, UpdateApplicationRequest request) {
+                ApplicationForm applicationForm = getApplicationOrThrow(applicationFormId);
+
+                applicationValidator.validateAccess(applicationForm);
+
+                applicationValidator.validateUpdatable(applicationForm);
+
+                FormType formType = getFormTypeOrThrow(request.getFormTypeId());
+
+                if (!formType.isActive()) {
+                        throw new InactiveFormTypeException(
+                                        "Form type is inactive");
+                }
+
+                applicationFormMapper.updateEntity(
+                                request,
+                                applicationForm);
+
+                applicationForm.setFormType(formType);
+
+                ApplicationForm updatedApplicationForm = applicationFormRepository.save(applicationForm);
+
+                applicationAuditLogService.logUpdated(updatedApplicationForm.getId(), updatedApplicationForm.getUser(),
+                                "Application details updated");
+
+                log.info(
+                                "Application updated. Id: {}, UserId: {}, FormTypeId: {}",
+                                updatedApplicationForm.getId(),
+                                updatedApplicationForm.getUser().getId(),
+                                formType.getId());
+
+                return applicationFormMapper.toResponse(
+                                updatedApplicationForm);
+        }
+
+        @Override
+        public void deleteApplicationForm(UUID applicationFormId) {
+                ApplicationForm applicationForm = getApplicationOrThrow(applicationFormId);
+
+                applicationValidator.validateAccess(applicationForm);
+
+                applicationValidator.validateDeletable(applicationForm);
+
+                applicationAuditLogService.logDeleted(applicationForm.getId(), applicationForm.getUser());
+
+                applicationFormRepository.delete(applicationForm);
+
+                log.info(
+                                "Application deleted. Id: {}, UserId: {}, FormTypeId: {}",
+                                applicationForm.getId(),
+                                applicationForm.getUser().getId(),
+                                applicationForm.getFormType().getId());
+        }
+
+        @Override
+        public ApplicationResponse approveApplication(UUID applicationId) {
+                ApplicationForm applicationForm = getApplicationOrThrow(applicationId);
+                applicationValidator.validateApprovable(applicationForm);
+                ApplicationStatus oldStatus = applicationForm.getStatus();
+                applicationForm.setStatus(ApplicationStatus.APPROVED);
+                ApplicationForm savedApplicationForm = applicationFormRepository.save(applicationForm);
+
+                applicationAuditLogService.logStatusChanged(
+                                savedApplicationForm.getId(),
+                                getCurrentUser(),
+                                oldStatus,
+                                ApplicationStatus.APPROVED,
+                                "Application approved");
+
+                log.info(
+                                "Application approved. Id: {}, UserId: {}",
+                                savedApplicationForm.getId(),
+                                savedApplicationForm.getUser().getId());
+
+                return applicationFormMapper.toResponse(
+                                savedApplicationForm);
+        }
+
+        @Override
+        public ApplicationResponse rejectApplication(UUID applicationId) {
+                ApplicationForm applicationForm = getApplicationOrThrow(applicationId);
+                applicationValidator.validateRejectable(applicationForm);
+                ApplicationStatus oldStatus = applicationForm.getStatus();
+                applicationForm.setStatus(ApplicationStatus.REJECTED);
+                ApplicationForm savedApplicationForm = applicationFormRepository.save(applicationForm);
+
+                applicationAuditLogService.logStatusChanged(
+                                savedApplicationForm.getId(),
+                                getCurrentUser(),
+                                oldStatus,
+                                ApplicationStatus.REJECTED,
+                                "Application rejected");
+
+                log.info(
+                                "Application rejected. Id: {}, UserId: {}",
+                                savedApplicationForm.getId(),
+                                savedApplicationForm.getUser().getId());
+
+                return applicationFormMapper.toResponse(
+                                savedApplicationForm);
+        }
+
+        @Override
+        public ApplicationResponse cancelApplication(UUID applicationId) {
+                ApplicationForm applicationForm = getApplicationOrThrow(applicationId);
+                applicationValidator.validateAccess(applicationForm);
+                applicationValidator.validateCancellable(applicationForm);
+                ApplicationStatus oldStatus = applicationForm.getStatus();
+                applicationForm.setStatus(ApplicationStatus.CANCELLED);
+                ApplicationForm savedApplicationForm = applicationFormRepository.save(applicationForm);
+
+                applicationAuditLogService.logStatusChanged(
+                                savedApplicationForm.getId(),
+                                savedApplicationForm.getUser(),
+                                oldStatus,
+                                ApplicationStatus.CANCELLED,
+                                "Application cancelled");
+
+                log.info(
+                                "Application cancelled. Id: {}, UserId: {}",
+                                savedApplicationForm.getId(),
+                                savedApplicationForm.getUser().getId());
+
+                return applicationFormMapper.toResponse(
+                                savedApplicationForm);
+        }
+
+        @Override
+        public ApplicationResponse moveToReview(UUID applicationId) {
+                ApplicationForm applicationForm = getApplicationOrThrow(applicationId);
+                applicationValidator.validateReviewable(applicationForm);
+                ApplicationStatus oldStatus = applicationForm.getStatus();
+                applicationForm.setStatus(ApplicationStatus.IN_REVIEW);
+                ApplicationForm savedApplicationForm = applicationFormRepository.save(applicationForm);
+
+                applicationAuditLogService.logStatusChanged(
+                                savedApplicationForm.getId(),
+                                getCurrentUser(),
+                                oldStatus,
+                                ApplicationStatus.IN_REVIEW,
+                                "Application moved to review");
+
+                log.info(
+                                "Application moved to review. Id: {}, UserId: {}",
+                                savedApplicationForm.getId(),
+                                savedApplicationForm.getUser().getId());
+
+                return applicationFormMapper.toResponse(
+                                savedApplicationForm);
+        }
+
+        @Override
+        @Transactional(readOnly = true)
+        public List<ApplicationAuditLogResponse> getApplicationHistory(UUID applicationId) {
+                ApplicationForm applicationForm = getApplicationOrThrow(applicationId);
+                applicationValidator.validateAccess(applicationForm);
+                User currentUser = getCurrentUser();
+                boolean includeActor = currentUser.getRole() == UserRole.ADMIN;
+
+                return applicationAuditLogService.getApplicationHistory(applicationId, includeActor);
+        }
 
 }

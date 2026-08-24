@@ -37,6 +37,7 @@
 ---
 
 ## 📖 Table of Contents
+- [✨ What's New](#whats-new)
 - [🎯 Project Description](#project-description)
 - [💡 Why This Project?](#why-this-project)
 - [✨ Features](#features)
@@ -62,6 +63,20 @@
 - [🔮 Future Improvements](#future-improvements)
 - [ℹ️ Project Information](#project-information)
 - [📄 License](#license)
+
+---
+
+<a id="whats-new"></a>
+## ✨ What's New
+
+We have recently introduced the **Audit Log & History Subsystem**, a comprehensive tracking mechanism designed to enhance accountability and transparency across the application lifecycle.
+
+> [!TIP]
+> **Key Capabilities:**
+> - 🔍 **Complete Audit Trail:** Automatically records every status transition, update, and action performed on an application.
+> - ⏱️ **Chronological Tracking:** Captures precise timestamps for all historical events to ensure compliance and traceability.
+> - 👤 **Actor Accountability:** Logs the identity of the user (actor) initiating the action, providing clear visibility for administrators.
+> - 📊 **Centralized Timeline:** Presents the entire lifecycle of an application in a centralized, easily readable timeline within the Application Detail view.
 
 ---
 
@@ -822,7 +837,7 @@ From `.env.example`:
 - [x] Landing page
 
 **⏳ Planned:**
-- [ ] Dedicated audit logging/history subsystem
+- [x] Dedicated audit logging/history subsystem
 - [ ] Excel / PDF export
 - [ ] Email notifications
 - [ ] CI/CD pipeline
@@ -893,6 +908,7 @@ This project was developed for educational/internship purposes.
 ---
 
 ## 📖 İçindekiler
+- [✨ Yeni Neler Var](#yeni-neler-var)
 - [🎯 Proje Tanımı](#project-description-tr)
 - [💡 Neden Bu Proje?](#why-this-project-tr)
 - [✨ Özellikler](#features-tr)
@@ -918,6 +934,20 @@ This project was developed for educational/internship purposes.
 - [🔮 Gelecek İyileştirmeler](#future-improvements-tr)
 - [ℹ️ Proje Bilgisi](#project-information-tr)
 - [📄 Lisans](#license-tr)
+
+---
+
+<a id="yeni-neler-var"></a>
+## ✨ Yeni Neler Var
+
+Başvuru yaşam döngüsü boyunca hesap verebilirliği ve şeffaflığı artırmak amacıyla tasarlanan kapsamlı bir takip mekanizması olan **Denetim İzi (Audit Log) & Geçmiş Alt Sistemi** entegre edilmiştir.
+
+> [!TIP]
+> **Temel Yetenekler:**
+> - 🔍 **Tam Denetim İzi (Audit Trail):** Bir başvuru üzerinde gerçekleştirilen her durum geçişini, güncellemeyi ve işlemi otomatik olarak kayıt altına alır.
+> - ⏱️ **Kronolojik Takip:** İzlenebilirliği sağlamak amacıyla tüm geçmiş olaylar için kesin zaman damgalarını yakalar ve saklar.
+> - 👤 **İşlem Sorumluluğu (Accountability):** İşlemi başlatan kullanıcının (actor) kimliğini kaydederek yöneticiler için net bir görünürlük sağlar.
+> - 📊 **Merkezi Zaman Çizelgesi:** Başvurunun tüm yaşam döngüsünü, Başvuru Detay ekranında merkezi ve okunabilir bir zaman çizelgesi olarak sunar.
 
 ---
 
@@ -1677,7 +1707,7 @@ npm run dev
 - [x] Landing page
 
 **⏳ Planlanan:**
-- [ ] Ayrı denetim günlüğü/geçmiş alt sistemi
+- [x] Ayrı denetim günlüğü/geçmiş alt sistemi
 - [ ] Excel / PDF export
 - [ ] E-posta bildirimleri
 - [ ] CI/CD pipeline'ı

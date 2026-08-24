@@ -9,6 +9,7 @@ Name | Type | Description | Notes
 **pendingApplications** | **number** |  | [optional] [default to undefined]
 **approvedApplications** | **number** |  | [optional] [default to undefined]
 **rejectedApplications** | **number** |  | [optional] [default to undefined]
+**cancelledApplications** | **number** |  | [optional] [default to undefined]
 **todayApplications** | **number** |  | [optional] [default to undefined]
 **latestApplications** | [**Array&lt;ApplicationResponse&gt;**](ApplicationResponse.md) |  | [optional] [default to undefined]
 
@@ -22,6 +23,7 @@ const instance: DashboardResponse = {
     pendingApplications,
     approvedApplications,
     rejectedApplications,
+    cancelledApplications,
     todayApplications,
     latestApplications,
 };

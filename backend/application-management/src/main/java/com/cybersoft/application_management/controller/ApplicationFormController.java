@@ -1,5 +1,6 @@
 package com.cybersoft.application_management.controller;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.data.domain.Page;
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.cybersoft.application_management.dto.request.ApplicationSearchRequest;
 import com.cybersoft.application_management.dto.request.CreateApplicationFormRequest;
 import com.cybersoft.application_management.dto.request.UpdateApplicationRequest;
+import com.cybersoft.application_management.dto.response.ApplicationAuditLogResponse;
 import com.cybersoft.application_management.dto.response.ApplicationResponse;
 import com.cybersoft.application_management.service.ApplicationFormService;
 
@@ -33,106 +35,111 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/api/v1/applications")
 @RequiredArgsConstructor
 public class ApplicationFormController {
-    private final ApplicationFormService applicationFormService;
+        private final ApplicationFormService applicationFormService;
 
-    @PostMapping("/create")
-    @PreAuthorize("hasRole('PERSONNEL')")
-    public ResponseEntity<ApplicationResponse> create(@Valid @RequestBody CreateApplicationFormRequest request) {
-        ApplicationResponse response = applicationFormService.create(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
-    }
+        @PostMapping("/create")
+        @PreAuthorize("hasRole('PERSONNEL')")
+        public ResponseEntity<ApplicationResponse> create(@Valid @RequestBody CreateApplicationFormRequest request) {
+                ApplicationResponse response = applicationFormService.create(request);
+                return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        }
 
-    @GetMapping("/my")
-    @PreAuthorize("hasRole('PERSONNEL')")
-    public ResponseEntity<Page<ApplicationResponse>> getMyApplications(ApplicationSearchRequest request,
-            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
-        return ResponseEntity.ok(applicationFormService.getMyApplications(request, pageable));
+        @GetMapping("/my")
+        @PreAuthorize("hasRole('PERSONNEL')")
+        public ResponseEntity<Page<ApplicationResponse>> getMyApplications(ApplicationSearchRequest request,
+                        @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+                return ResponseEntity.ok(applicationFormService.getMyApplications(request, pageable));
 
-    }
+        }
 
-    @GetMapping("/all")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Page<ApplicationResponse>> getAllApplications(
-            ApplicationSearchRequest request,
-            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+        @GetMapping("/all")
+        @PreAuthorize("hasRole('ADMIN')")
+        public ResponseEntity<Page<ApplicationResponse>> getAllApplications(
+                        ApplicationSearchRequest request,
+                        @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
 
-        return ResponseEntity.ok(
-                applicationFormService.getAllApplications(
-                        request,
-                        pageable));
-    }
+                return ResponseEntity.ok(
+                                applicationFormService.getAllApplications(
+                                                request,
+                                                pageable));
+        }
 
-    @GetMapping("/{applicationId}")
-    @PreAuthorize("hasAnyRole('PERSONNEL', 'ADMIN')")
-    public ResponseEntity<ApplicationResponse> getById(
-            @PathVariable UUID applicationId) {
+        @GetMapping("/{applicationId}")
+        @PreAuthorize("hasAnyRole('PERSONNEL', 'ADMIN')")
+        public ResponseEntity<ApplicationResponse> getById(
+                        @PathVariable UUID applicationId) {
 
-        return ResponseEntity.ok(
-                applicationFormService.getById(applicationId));
-    }
+                return ResponseEntity.ok(
+                                applicationFormService.getById(applicationId));
+        }
 
-    @PutMapping("/{applicationId}")
-    @PreAuthorize("hasRole('PERSONNEL')")
-    public ResponseEntity<ApplicationResponse> update(
-            @PathVariable UUID applicationId,
-            @Valid @RequestBody UpdateApplicationRequest request) {
+        @PutMapping("/{applicationId}")
+        @PreAuthorize("hasRole('PERSONNEL')")
+        public ResponseEntity<ApplicationResponse> update(
+                        @PathVariable UUID applicationId,
+                        @Valid @RequestBody UpdateApplicationRequest request) {
 
-        return ResponseEntity.ok(
-                applicationFormService.updateApplicationForm(
-                        applicationId,
-                        request));
-    }
+                return ResponseEntity.ok(
+                                applicationFormService.updateApplicationForm(
+                                                applicationId,
+                                                request));
+        }
 
-    @DeleteMapping("/{applicationId}")
-    @PreAuthorize("hasRole('PERSONNEL')")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(
-            @PathVariable UUID applicationId) {
+        @DeleteMapping("/{applicationId}")
+        @PreAuthorize("hasRole('PERSONNEL')")
+        @ResponseStatus(HttpStatus.NO_CONTENT)
+        public void delete(
+                        @PathVariable UUID applicationId) {
 
-        applicationFormService.deleteApplicationForm(
-                applicationId);
-    }
+                applicationFormService.deleteApplicationForm(
+                                applicationId);
+        }
 
-    @PatchMapping("/{applicationId}/cancel")
-    @PreAuthorize("hasRole('PERSONNEL')")
-    public ResponseEntity<ApplicationResponse> cancel(
-            @PathVariable UUID applicationId) {
+        @PatchMapping("/{applicationId}/cancel")
+        @PreAuthorize("hasRole('PERSONNEL')")
+        public ResponseEntity<ApplicationResponse> cancel(
+                        @PathVariable UUID applicationId) {
 
-        return ResponseEntity.ok(
-                applicationFormService.cancelApplication(
-                        applicationId));
-    }
+                return ResponseEntity.ok(
+                                applicationFormService.cancelApplication(
+                                                applicationId));
+        }
 
-    @PatchMapping("/{applicationId}/review")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApplicationResponse> moveToReview(
-            @PathVariable UUID applicationId) {
+        @PatchMapping("/{applicationId}/review")
+        @PreAuthorize("hasRole('ADMIN')")
+        public ResponseEntity<ApplicationResponse> moveToReview(
+                        @PathVariable UUID applicationId) {
 
-        return ResponseEntity.ok(
-                applicationFormService.moveToReview(
-                        applicationId));
-    }
+                return ResponseEntity.ok(
+                                applicationFormService.moveToReview(
+                                                applicationId));
+        }
 
-    @PatchMapping("/{applicationId}/approve")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApplicationResponse> approve(
-            @PathVariable UUID applicationId) {
+        @PatchMapping("/{applicationId}/approve")
+        @PreAuthorize("hasRole('ADMIN')")
+        public ResponseEntity<ApplicationResponse> approve(
+                        @PathVariable UUID applicationId) {
 
-        return ResponseEntity.ok(
-                applicationFormService.approveApplication(
-                        applicationId));
-    }
+                return ResponseEntity.ok(
+                                applicationFormService.approveApplication(
+                                                applicationId));
+        }
 
-    @PatchMapping("/{applicationId}/reject")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApplicationResponse> reject(
-            @PathVariable UUID applicationId) {
+        @PatchMapping("/{applicationId}/reject")
+        @PreAuthorize("hasRole('ADMIN')")
+        public ResponseEntity<ApplicationResponse> reject(
+                        @PathVariable UUID applicationId) {
 
-        return ResponseEntity.ok(
-                applicationFormService.rejectApplication(
-                        applicationId));
-    }
+                return ResponseEntity.ok(
+                                applicationFormService.rejectApplication(
+                                                applicationId));
+        }
 
-    
+        @GetMapping("/{applicationId}/history")
+        @PreAuthorize("hasAnyRole('PERSONNEL', 'ADMIN')")
+        public ResponseEntity<List<ApplicationAuditLogResponse>> getHistory(
+                        @PathVariable UUID applicationId) {
+                return ResponseEntity.ok(applicationFormService.getApplicationHistory(applicationId));
+        }
 
 }

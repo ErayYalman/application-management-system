@@ -1,5 +1,6 @@
 package com.cybersoft.application_management.service;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.data.domain.Page;
@@ -8,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 import com.cybersoft.application_management.dto.request.ApplicationSearchRequest;
 import com.cybersoft.application_management.dto.request.CreateApplicationFormRequest;
 import com.cybersoft.application_management.dto.request.UpdateApplicationRequest;
+import com.cybersoft.application_management.dto.response.ApplicationAuditLogResponse;
 import com.cybersoft.application_management.dto.response.ApplicationResponse;
 
 public interface ApplicationFormService {
@@ -31,5 +33,7 @@ public interface ApplicationFormService {
     ApplicationResponse cancelApplication(UUID applicationId);
 
     ApplicationResponse moveToReview(UUID applicationId);
+
+    List<ApplicationAuditLogResponse> getApplicationHistory(UUID applicationId);
 
 }

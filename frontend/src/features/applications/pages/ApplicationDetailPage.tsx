@@ -39,6 +39,8 @@ import { useUploadAttachment } from "../../attachments/hooks/use-upload-attachme
 import { useDeleteAttachment } from "../../attachments/hooks/use-delete-attachment";
 import { downloadAttachment } from "../../attachments/api/attachment-service";
 import StatusChip from "../../../components/StatusChip";
+import { useApplicationHistory } from "../hooks/use-application-history";
+import ApplicationHistory from "../components/ApplicationHistory";
 
 type ConfirmActionType = "approve" | "reject" | "cancel" | "remove" | "delete_attachment" | null;
 
@@ -48,10 +50,10 @@ export default function ApplicationDetailPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useAuth();
-  
+
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
-  
+
   const [confirmDialog, setConfirmDialog] = useState<{
     open: boolean;
     type: ConfirmActionType;
@@ -87,6 +89,12 @@ export default function ApplicationDetailPage() {
     data: attachments = [],
     isLoading: attachmentsLoading,
   } = useAttachments(applicationId ?? "");
+
+  const {
+    data: history = [],
+    isLoading: historyLoading,
+    isError: isHistoryError,
+  } = useApplicationHistory(applicationId ?? "");
 
   if (isLoading) {
     return (
@@ -404,6 +412,24 @@ export default function ApplicationDetailPage() {
               </Box>
             )}
           </Box>
+          <Divider sx={{ my: 5 }} />
+
+          <Box>
+            <Typography
+              variant="h6"
+              sx={{ fontWeight: 600, mb: 2 }}
+            >
+              Başvuru Geçmişi
+            </Typography>
+
+            <ApplicationHistory
+              history={history}
+              isLoading={historyLoading}
+              isError={isHistoryError}
+              isAdmin={isAdmin}
+            />
+          </Box>
+
         </CardContent>
 
         {/* ACTIONS BAR */}
@@ -504,9 +530,9 @@ export default function ApplicationDetailPage() {
           {snackbarMessage}
         </Alert>
       </Snackbar>
-      
+
       {/* ERROR SNACKBARS (General API Errors) */}
-      <Snackbar open={review.isError || approve.isError || reject.isError || cancel.isError || remove.isError || uploadAttachmentMutation.isError || deleteAttachmentMutation.isError} autoHideDuration={6000}>
+      <Snackbar open={review.isError || approve.isError || reject.isError || cancel.isError || remove.isError || uploadAttachmentMutation.isError || deleteAttachmentMutation.isError || isHistoryError} autoHideDuration={6000}>
         <Alert severity="error" variant="filled">Bir hata oluştu. Lütfen tekrar deneyin.</Alert>
       </Snackbar>
     </Box>

@@ -1,10 +1,10 @@
 .gitignore
 .npmignore
-.openapi-generator-ignore
 api.ts
 base.ts
 common.ts
 configuration.ts
+docs/ApplicationAuditLogResponse.md
 docs/ApplicationFormControllerApi.md
 docs/ApplicationFormTypeReport.md
 docs/ApplicationReportControllerApi.md

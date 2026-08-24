@@ -10,6 +10,7 @@ All URIs are relative to *http://localhost:8080*
 |[**create1**](#create1) | **POST** /api/v1/applications/create | |
 |[**getAllApplications**](#getallapplications) | **GET** /api/v1/applications/all | |
 |[**getById1**](#getbyid1) | **GET** /api/v1/applications/{applicationId} | |
+|[**getHistory**](#gethistory) | **GET** /api/v1/applications/{applicationId}/history | |
 |[**getMyApplications**](#getmyapplications) | **GET** /api/v1/applications/my | |
 |[**moveToReview**](#movetoreview) | **PATCH** /api/v1/applications/{applicationId}/review | |
 |[**reject**](#reject) | **PATCH** /api/v1/applications/{applicationId}/reject | |
@@ -303,6 +304,56 @@ const { status, data } = await apiInstance.getById1(
 ### Return type
 
 **ApplicationResponse**
+
+### Authorization
+
+[BearerAuth](../README.md#BearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: */*
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | OK |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **getHistory**
+> Array<ApplicationAuditLogResponse> getHistory()
+
+
+### Example
+
+```typescript
+import {
+    ApplicationFormControllerApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new ApplicationFormControllerApi(configuration);
+
+let applicationId: string; // (default to undefined)
+
+const { status, data } = await apiInstance.getHistory(
+    applicationId
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **applicationId** | [**string**] |  | defaults to undefined|
+
+
+### Return type
+
+**Array<ApplicationAuditLogResponse>**
 
 ### Authorization
 
