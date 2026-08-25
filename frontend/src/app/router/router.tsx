@@ -59,13 +59,21 @@ import ProfilePage
 import HomePage
   from "../../features/home/pages/HomePage";
 
-import { Navigate } from "react-router-dom";
+import { Navigate, Outlet } from "react-router-dom";
+import { NotificationStreamProvider } from "../providers/NotificationStreamProvider";
 
 export const router = createBrowserRouter([
-  // --------------------------------------------------
-  // PUBLIC ROUTES
-  // --------------------------------------------------
   {
+    element: (
+      <NotificationStreamProvider>
+        <Outlet />
+      </NotificationStreamProvider>
+    ),
+    children: [
+      // --------------------------------------------------
+      // PUBLIC ROUTES
+      // --------------------------------------------------
+      {
     path: "/",
     element: <Navigate to="/ApplicationManagementSystem" replace />,
   },
@@ -197,6 +205,8 @@ export const router = createBrowserRouter([
           },
         ],
       },
+    ],
+  },
     ],
   },
 ]);

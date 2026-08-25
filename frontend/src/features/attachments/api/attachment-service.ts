@@ -21,5 +21,5 @@ export async function downloadAttachment(attachmentId: string) {
 }
 
 export async function deleteAttachment(attachmentId: string): Promise<void> {
-  await attachmentApi.delete1(attachmentId);
+  await attachmentApi.delete2(attachmentId);
 }

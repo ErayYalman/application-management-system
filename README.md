@@ -69,14 +69,26 @@
 <a id="whats-new"></a>
 ## ✨ What's New
 
-We have recently introduced the **Audit Log & History Subsystem**, a comprehensive tracking mechanism designed to enhance accountability and transparency across the application lifecycle.
+Hold onto your hats! We've just shipped some fresh out of the oven features to make your life way easier (and cooler).
+
+### 🕵️ Audit Log & History
+Ever wondered "who approved this!?" or "when did this application go missing in action?" We've got you covered. The **Audit Log & History Subsystem** is here to snitch on everyone (in a good way).
 
 > [!TIP]
 > **Key Capabilities:**
-> - 🔍 **Complete Audit Trail:** Automatically records every status transition, update, and action performed on an application.
+> - 🔍 **Complete Audit Trail:** Automatically records every status transition, update, and action performed on an application. No hiding anymore!
 > - ⏱️ **Chronological Tracking:** Captures precise timestamps for all historical events to ensure compliance and traceability.
-> - 👤 **Actor Accountability:** Logs the identity of the user (actor) initiating the action, providing clear visibility for administrators.
-> - 📊 **Centralized Timeline:** Presents the entire lifecycle of an application in a centralized, easily readable timeline within the Application Detail view.
+> - 👤 **Actor Accountability:** Logs the identity of the user (actor) initiating the action. We know who did it.
+> - 📊 **Centralized Timeline:** Presents the entire lifecycle of an application in a centralized, easily readable timeline. It's like scrolling through social media, but for corporate forms!
+
+### 🔔 Real-time Notifications & Notification Center
+No more refreshing the page like a maniac! We've introduced a brand-new **In-App Notification Center** with real-time Server-Sent Events (SSE). 
+
+> [!TIP]
+> **Key Capabilities:**
+> - ⚡ **Real-time Updates:** Get notified instantly when something happens. Pop-ups so smooth, you'll actually want to see them.
+> - 📥 **Notification Center:** A sleek, dedicated hub to view, manage, and dismiss all your alerts.
+> - 🧹 **Clean & Tidy:** Mark all as read or delete everything with a single click. Start fresh whenever you want!
 
 ---
 
@@ -200,6 +212,8 @@ flowchart TD
 - Specification pattern for dynamic, type-safe search
 - OpenAPI documentation with Swagger UI
 - OpenAPI-generated TypeScript Axios client
+- In-app Notification Center
+- Real-time notifications using Server-Sent Events (SSE)
 - Spring Boot Actuator
 - Docker Compose (3 services, healthcheck, 2 persistent volumes)
 - Nginx reverse proxy (SPA fallback + API/Swagger proxy + static asset caching)
@@ -427,6 +441,9 @@ The frontend leverages the robust **Material UI v9** design system, utilizing a 
 12. **Persistent Docker Volumes** — `postgres_data` + `app_storage` survive container rebuilds.
 13. **Admin Auto-Initialization** — `CommandLineRunner` creates admin user from environment variables on first startup.
 14. **Scheduled Token Cleanup** — Daily cron job purges expired/revoked refresh tokens from the database.
+15. **Audit Logging vs. Notifications** — Audit logs explicitly record business history (who did what) for compliance, while the Notification subsystem independently communicates relevant events to users.
+16. **Real-time Notifications (SSE)** — Server-Sent Events are used for one-way server-to-client realtime notifications instead of WebSockets, reducing architectural complexity.
+17. **Notification Persistence** — Notifications are securely scoped to the authenticated user and stored in PostgreSQL via REST for management, strictly separated from realtime delivery.
 
 ---
 
@@ -459,7 +476,7 @@ The frontend leverages the robust **Material UI v9** design system, utilizing a 
 <a id="database"></a>
 ## 🗄️ Database
 
-**5 Tables (Flyway V1–V7):**
+**7 Tables (Flyway V1–V9):**
 
 | Table | Migration | Purpose | Key Constraints |
 |---|---|---|---|
@@ -468,6 +485,8 @@ The frontend leverages the robust **Material UI v9** design system, utilizing a 
 | `application_forms` | V3 | Submitted applications | FK → users (`RESTRICT`), FK → form_types (`RESTRICT`), CHECK status |
 | `attachments` | V4 | Uploaded files | FK → application_forms (`CASCADE`) |
 | `refresh_tokens` | V7 | JWT refresh tokens | FK → users (`CASCADE`), UNIQUE token_hash, `revoked`, `expires_at` |
+| `application_audit_logs` | V8 | Audit history | FK → application_forms, FK → users |
+| `notifications` | V9 | User alerts | FK → users, `is_read` |
 
 **Indexes (V6 + V7):**
 - `idx_application_forms_user_id`
@@ -523,7 +542,7 @@ flowchart LR
 <a id="api-endpoints"></a>
 ## 🌐 API Endpoints
 
-**33 verified endpoints across 7 controllers.**
+**41 REST endpoints**
 
 ### 🔐 Authentication
 | Method | Endpoint | Description | Auth |
@@ -581,6 +600,17 @@ flowchart LR
 |---|---|---|---|
 | 🔵 `GET` | `/api/v1/dashboard` | Get dashboard KPIs | `ADMIN` |
 | 🔵 `GET` | `/api/v1/reports/applications` | Get application report (filtered) | `ADMIN` |
+
+### 🔔 Notifications
+| Method | Endpoint | Description | Auth |
+|---|---|---|---|
+| 🔵 `GET` | `/api/v1/notifications` | List user notifications | `PERSONNEL` / `ADMIN` |
+| 🔵 `GET` | `/api/v1/notifications/unread-count` | Get unread count | `PERSONNEL` / `ADMIN` |
+| 🟡 `PATCH` | `/api/v1/notifications/{notificationId}/read` | Mark as read | `PERSONNEL` / `ADMIN` |
+| 🟡 `PATCH` | `/api/v1/notifications/read-all` | Mark all as read | `PERSONNEL` / `ADMIN` |
+| 🔴 `DELETE` | `/api/v1/notifications/{notificationId}` | Delete notification | `PERSONNEL` / `ADMIN` |
+| 🔴 `DELETE` | `/api/v1/notifications` | Delete all notifications | `PERSONNEL` / `ADMIN` |
+| 📡 `GET` | `/api/v1/notifications/stream` | Real-time SSE stream | `PERSONNEL` / `ADMIN` |
 
 ---
 
@@ -836,8 +866,11 @@ From `.env.example`:
 - [x] Scheduled token cleanup and admin auto-initialization
 - [x] Landing page
 
-**⏳ Planned:**
 - [x] Dedicated audit logging/history subsystem
+- [x] In-app Notification Center
+- [x] Real-time notifications using Server-Sent Events (SSE)
+
+**⏳ Planned:**
 - [ ] Excel / PDF export
 - [ ] Email notifications
 - [ ] CI/CD pipeline
@@ -848,7 +881,6 @@ From `.env.example`:
 
 <a id="future-improvements"></a>
 ## 🔮 Future Improvements
-- 🔔 **In-app Notification Center**
 - 💬 **Application Comments/Notes**
 - 🌍 **Multi-language Support (i18n)**
 - ⏱️ **API Rate Limiting**
@@ -940,14 +972,26 @@ This project was developed for educational/internship purposes.
 <a id="yeni-neler-var"></a>
 ## ✨ Yeni Neler Var
 
-Başvuru yaşam döngüsü boyunca hesap verebilirliği ve şeffaflığı artırmak amacıyla tasarlanan kapsamlı bir takip mekanizması olan **Denetim İzi (Audit Log) & Geçmiş Alt Sistemi** entegre edilmiştir.
+Kemerlerinizi bağlayın! Hayatınızı (ve iş akışınızı) inanılmaz kolaylaştıracak yepyeni iki bombayla karşınızdayız.
+
+### 🕵️ Denetim İzi (Audit Log) & Geçmiş
+Hiç "Bunu kim onayladı yahu?!" veya "Bu başvuru ne ara reddedildi?" diye düşündüğünüz oldu mu? Artık düşünmeyeceksiniz! **Denetim İzi (Audit Log) Alt Sistemi** her şeyi tek tek not almak için burada.
 
 > [!TIP]
 > **Temel Yetenekler:**
-> - 🔍 **Tam Denetim İzi (Audit Trail):** Bir başvuru üzerinde gerçekleştirilen her durum geçişini, güncellemeyi ve işlemi otomatik olarak kayıt altına alır.
-> - ⏱️ **Kronolojik Takip:** İzlenebilirliği sağlamak amacıyla tüm geçmiş olaylar için kesin zaman damgalarını yakalar ve saklar.
-> - 👤 **İşlem Sorumluluğu (Accountability):** İşlemi başlatan kullanıcının (actor) kimliğini kaydederek yöneticiler için net bir görünürlük sağlar.
-> - 📊 **Merkezi Zaman Çizelgesi:** Başvurunun tüm yaşam döngüsünü, Başvuru Detay ekranında merkezi ve okunabilir bir zaman çizelgesi olarak sunar.
+> - 🔍 **Tam Denetim İzi:** Bir başvuru üzerinde gerçekleştirilen her durum geçişini ve güncellemeyi otomatik olarak kaydeder. Kaçış yok!
+> - ⏱️ **Kronolojik Takip:** İzlenebilirliği sağlamak amacıyla tüm geçmiş olaylar için saniyesine kadar zaman damgalarını yakalar.
+> - 👤 **İşlem Sorumluluğu:** İşlemi yapanın kimliğini kaydeder. Artık "ben yapmadım sistem yapmış" devri bitti.
+> - 📊 **Merkezi Zaman Çizelgesi:** Başvurunun tüm yaşam döngüsünü, okuması keyifli bir zaman çizelgesi (timeline) olarak sunar. Şirket içi dedikodu okur gibi başvuru geçmişi okuyabilirsiniz!
+
+### 🔔 Gerçek Zamanlı Bildirimler & Bildirim Merkezi
+"Acaba onaylandı mı?" diye sayfayı sürekli yenileme (F5) eziyetine son! Karşınızda gerçek zamanlı (SSE) **Uygulama İçi Bildirim Merkezi**.
+
+> [!TIP]
+> **Temel Yetenekler:**
+> - ⚡ **Anında Haberiniz Olsun:** Bir şeyler olduğunda anında sağ alttan şık bir bildirim gelir. O kadar pürüzsüz ki gözünüz sürekli bildirim arayacak.
+> - 📥 **Bildirim Merkezi:** Tüm uyarılarınızı tek bir yerden, son derece kurumsal ve havalı bir arayüzden yönetin.
+> - 🧹 **Tertemiz Bir Sayfa:** Tek tıkla "Tümünü okundu işaretle" veya "Tümünü sil" deyin, kafanız rahat etsin!
 
 ---
 
@@ -1070,6 +1114,8 @@ flowchart TD
 - Dinamik, tip güvenli arama için Specification pattern
 - Swagger UI ile OpenAPI dokümantasyonu
 - OpenAPI'den üretilen TypeScript Axios istemcisi
+- Uygulama İçi Bildirim Merkezi (Notification Center)
+- SSE (Server-Sent Events) ile gerçek zamanlı bildirimler
 - Spring Boot Actuator
 - Docker Compose (3 servis, healthcheck, 2 kalıcı volume)
 - Nginx reverse proxy (SPA fallback + API/Swagger proxy + statik varlık önbellekleme)
@@ -1297,6 +1343,9 @@ Frontend, hem aydınlık hem karanlık paletler için özel tasarım token'ları
 12. **Kalıcı Docker Volume'leri** — `postgres_data` + `app_storage`, container yeniden oluşturulsa bile kalıcıdır.
 13. **Admin Otomatik Başlatma** — `CommandLineRunner`, ilk başlatmada ortam değişkenlerinden admin kullanıcı oluşturur.
 14. **Zamanlanmış Jeton Temizliği** — Günlük cron işi, süresi dolmuş/iptal edilmiş refresh token'ları veritabanından temizler.
+15. **Denetim Günlüğü (Audit Log) vs. Bildirimler** — Denetim günlükleri sistem geçmişini uyumluluk için kaydederken, bildirim alt sistemi kullanıcıları ilgili olaylardan anında haberdar eder.
+16. **Gerçek Zamanlı Bildirimler (SSE)** — İstemciye tek yönlü gerçek zamanlı veri akışı için karmaşık WebSocket yerine Server-Sent Events (SSE) tercih edilmiştir.
+17. **Bildirim Kalıcılığı** — Bildirimler yetkilendirilmiş kullanıcıya özel olarak PostgreSQL'de saklanır; yönetim (REST) ile dağıtım (SSE) ayrıştırılmıştır.
 
 ---
 
@@ -1329,7 +1378,7 @@ Frontend, hem aydınlık hem karanlık paletler için özel tasarım token'ları
 <a id="database-tr"></a>
 ## 🗄️ Veritabanı
 
-**5 Tablo (Flyway V1–V7):**
+**7 Tablo (Flyway V1–V9):**
 
 | Tablo | Migrasyon | Amaç | Temel Kısıtlar |
 |---|---|---|---|
@@ -1338,6 +1387,8 @@ Frontend, hem aydınlık hem karanlık paletler için özel tasarım token'ları
 | `application_forms` | V3 | Gönderilen başvurular | FK → users (`RESTRICT`), FK → form_types (`RESTRICT`), CHECK status |
 | `attachments` | V4 | Yüklenen dosyalar | FK → application_forms (`CASCADE`) |
 | `refresh_tokens` | V7 | JWT yenileme jetonları | FK → users (`CASCADE`), UNIQUE token_hash, `revoked`, `expires_at` |
+| `application_audit_logs` | V8 | Denetim günlüğü | FK → application_forms, FK → users |
+| `notifications` | V9 | Kullanıcı bildirimleri | FK → users, `is_read` |
 
 **İndeksler (V6 + V7):**
 - `idx_application_forms_user_id`
@@ -1393,7 +1444,7 @@ flowchart LR
 <a id="api-endpoints-tr"></a>
 ## 🌐 API Endpoint'leri
 
-**7 controller genelinde 33 doğrulanmış endpoint.**
+**41 REST endpoint'leri**
 
 ### 🔐 Kimlik Doğrulama
 | Metot | Endpoint | Açıklama | Yetki |
@@ -1451,6 +1502,17 @@ flowchart LR
 |---|---|---|---|
 | 🔵 `GET` | `/api/v1/dashboard` | Gösterge paneli KPI'larını getir | `ADMIN` |
 | 🔵 `GET` | `/api/v1/reports/applications` | Filtrelenmiş başvuru raporu getir | `ADMIN` |
+
+### 🔔 Bildirimler
+| Metot | Endpoint | Açıklama | Yetki |
+|---|---|---|---|
+| 🔵 `GET` | `/api/v1/notifications` | Kullanıcı bildirimlerini listele | `PERSONNEL` / `ADMIN` |
+| 🔵 `GET` | `/api/v1/notifications/unread-count` | Okunmamış bildirim sayısını getir | `PERSONNEL` / `ADMIN` |
+| 🟡 `PATCH` | `/api/v1/notifications/{notificationId}/read` | Okundu olarak işaretle | `PERSONNEL` / `ADMIN` |
+| 🟡 `PATCH` | `/api/v1/notifications/read-all` | Tümünü okundu olarak işaretle | `PERSONNEL` / `ADMIN` |
+| 🔴 `DELETE` | `/api/v1/notifications/{notificationId}` | Bildirimi sil | `PERSONNEL` / `ADMIN` |
+| 🔴 `DELETE` | `/api/v1/notifications` | Tüm bildirimleri sil | `PERSONNEL` / `ADMIN` |
+| 📡 `GET` | `/api/v1/notifications/stream` | Gerçek zamanlı SSE akışı | `PERSONNEL` / `ADMIN` |
 
 ---
 
@@ -1706,8 +1768,11 @@ npm run dev
 - [x] Zamanlanmış jeton temizliği ve admin otomatik başlatma
 - [x] Landing page
 
-**⏳ Planlanan:**
 - [x] Ayrı denetim günlüğü/geçmiş alt sistemi
+- [x] Uygulama İçi Bildirim Merkezi (Notification Center)
+- [x] SSE ile Gerçek Zamanlı Bildirimler
+
+**⏳ Planlanan:**
 - [ ] Excel / PDF export
 - [ ] E-posta bildirimleri
 - [ ] CI/CD pipeline'ı
@@ -1718,7 +1783,6 @@ npm run dev
 
 <a id="future-improvements-tr"></a>
 ## 🔮 Gelecek İyileştirmeler
-- 🔔 **Uygulama İçi Bildirim Merkezi**
 - 💬 **Başvuru Yorumları/Notları**
 - 🌍 **Çoklu Dil Desteği (i18n)**
 - ⏱️ **API Hız Sınırlama (Rate Limiting)**

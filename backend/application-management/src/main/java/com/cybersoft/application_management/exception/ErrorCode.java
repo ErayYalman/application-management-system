@@ -38,7 +38,10 @@ public enum ErrorCode {
     UNSUPPORTED_MEDIA_TYPE(HttpStatus.UNSUPPORTED_MEDIA_TYPE),
 
     INVALID_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED),
-    REFRESH_TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED);
+    REFRESH_TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED),
+
+    
+    NOTIFICATION_NOT_FOUND(HttpStatus.NOT_FOUND);
 
     private final HttpStatus httpStatus;
 

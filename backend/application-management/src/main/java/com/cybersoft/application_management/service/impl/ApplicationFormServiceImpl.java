@@ -29,6 +29,8 @@ import com.cybersoft.application_management.repository.UserRepository;
 import com.cybersoft.application_management.repository.specification.ApplicationFormSpecification;
 import com.cybersoft.application_management.security.userdetails.SecurityUtils;
 import com.cybersoft.application_management.service.ApplicationAuditLogService;
+import com.cybersoft.application_management.enums.NotificationType;
+import com.cybersoft.application_management.service.NotificationService;
 import com.cybersoft.application_management.service.ApplicationFormService;
 import com.cybersoft.application_management.service.validator.ApplicationValidator;
 import com.cybersoft.application_management.enums.UserRole;
@@ -47,6 +49,7 @@ public class ApplicationFormServiceImpl implements ApplicationFormService {
         private final ApplicationFormMapper applicationFormMapper;
         private final ApplicationValidator applicationValidator;
         private final ApplicationAuditLogService applicationAuditLogService;
+        private final NotificationService notificationService;
 
         private User getCurrentUser() {
 
@@ -227,6 +230,14 @@ public class ApplicationFormServiceImpl implements ApplicationFormService {
                                 ApplicationStatus.APPROVED,
                                 "Application approved");
 
+                notificationService.create(
+                                savedApplicationForm.getUser(),
+                                savedApplicationForm,
+                                NotificationType.APPLICATION_APPROVED,
+                                "Başvurunuz onaylandı",
+                                "\"" + savedApplicationForm.getTitle()
+                                                + "\" başvurunuz onaylandı.");
+
                 log.info(
                                 "Application approved. Id: {}, UserId: {}",
                                 savedApplicationForm.getId(),
@@ -250,6 +261,14 @@ public class ApplicationFormServiceImpl implements ApplicationFormService {
                                 oldStatus,
                                 ApplicationStatus.REJECTED,
                                 "Application rejected");
+
+                notificationService.create(
+                                savedApplicationForm.getUser(),
+                                savedApplicationForm,
+                                NotificationType.APPLICATION_REJECTED,
+                                "Başvurunuz reddedildi",
+                                "\"" + savedApplicationForm.getTitle()
+                                                + "\" başvurunuz reddedildi.");
 
                 log.info(
                                 "Application rejected. Id: {}, UserId: {}",
@@ -299,6 +318,14 @@ public class ApplicationFormServiceImpl implements ApplicationFormService {
                                 oldStatus,
                                 ApplicationStatus.IN_REVIEW,
                                 "Application moved to review");
+
+                notificationService.create(
+                                savedApplicationForm.getUser(),
+                                savedApplicationForm,
+                                NotificationType.APPLICATION_REVIEWED,
+                                "Başvurunuz incelemeye alındı",
+                                "\"" + savedApplicationForm.getTitle()
+                                                + "\" başvurunuz inceleme aşamasına alındı.");
 
                 log.info(
                                 "Application moved to review. Id: {}, UserId: {}",

@@ -189,6 +189,11 @@ apiClient.interceptors.response.use(
             authStorage.setTokens(
                 accessToken,
                 newRefreshToken,
+
+            );
+            
+            window.dispatchEvent(
+                new Event("auth:token-refreshed"),
             );
 
             notifyTokenRefreshed(

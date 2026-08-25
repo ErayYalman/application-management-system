@@ -4,13 +4,13 @@ All URIs are relative to *http://localhost:8080*
 
 |Method | HTTP request | Description|
 |------------- | ------------- | -------------|
-|[**delete1**](#delete1) | **DELETE** /api/v1/attachments/{attachmentId} | |
+|[**delete2**](#delete2) | **DELETE** /api/v1/attachments/{attachmentId} | |
 |[**download**](#download) | **GET** /api/v1/attachments/{attachmentId}/download | |
 |[**getAttachments**](#getattachments) | **GET** /api/v1/attachments/applications/{applicationId} | |
 |[**upload**](#upload) | **POST** /api/v1/attachments/applications/{applicationId} | |
 
-# **delete1**
-> delete1()
+# **delete2**
+> delete2()
 
 
 ### Example
@@ -26,7 +26,7 @@ const apiInstance = new AttachmentControllerApi(configuration);
 
 let attachmentId: string; // (default to undefined)
 
-const { status, data } = await apiInstance.delete1(
+const { status, data } = await apiInstance.delete2(
     attachmentId
 );
 ```
